@@ -37,7 +37,7 @@ def test_db_engine(tmp_path: Path) -> Generator[Any]:
 
 @pytest.fixture
 def test_settings() -> Settings:
-    return Settings(WATCH_FORCE_POLLING=False)
+    return Settings(WATCH_FORCE_POLLING=False, USER_TOKEN="test_token")
 
 
 @pytest.fixture
@@ -178,7 +178,7 @@ async def test_watcher_polling_mode(
     test_queue: JobQueue,
 ) -> None:
     """Test that polling mode works for network shares."""
-    polling_settings = Settings(WATCH_POLLING=True)
+    polling_settings = Settings(WATCH_FORCE_POLLING=True, USER_TOKEN="test_token")
 
     watcher_task = asyncio.create_task(
         watch_directories([watch_dir], polling_settings, test_queue)

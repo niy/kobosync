@@ -66,7 +66,6 @@ markers = [
 python_version = "3.13"
 mypy_path = ["src"]
 packages = ["kobosync"]
-exclude = ["local_debug/", "playground/", "tests/(.+/)?test_.*\\.py$"]
 strict = true
 warn_return_any = true
 warn_unused_configs = true
@@ -86,6 +85,14 @@ module = [
     "pypdf.*",
 ]
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+check_untyped_defs = false
+warn_return_any = false
+disallow_untyped_decorators = false
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Ruff Configuration

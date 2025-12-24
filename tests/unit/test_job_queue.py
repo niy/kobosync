@@ -1,10 +1,10 @@
 from datetime import UTC, datetime, timedelta
 
 import pytest
-from sqlmodel import Session, create_engine
+from sqlmodel import Session, SQLModel, create_engine
 
 from kobosync.job_queue import JobQueue
-from kobosync.models import Job, JobStatus, JobType, SQLModel
+from kobosync.models import Job, JobStatus, JobType
 
 
 class TestJobQueue:
@@ -79,6 +79,9 @@ class TestJobQueue:
         first = job_queue.fetch_next_job()
         second = job_queue.fetch_next_job()
 
+        assert first is not None
+        assert second is not None
+
         assert first.payload["order"] == 1
         assert second.payload["order"] == 2
 
@@ -90,6 +93,7 @@ class TestJobQueue:
 
         fetched = job_queue.fetch_next_job()
 
+        assert fetched is not None
         assert fetched.status == JobStatus.PROCESSING
         assert fetched.started_at is not None
 
@@ -100,11 +104,13 @@ class TestJobQueue:
     ) -> None:
         job_queue.add_job(JobType.CONVERT, payload={})
         fetched = job_queue.fetch_next_job()
+        assert fetched is not None
 
         job_queue.complete_job(fetched.id)
 
         with Session(test_engine) as session:
             completed = session.get(Job, fetched.id)
+            assert completed is not None
             assert completed.status == JobStatus.COMPLETED
             assert completed.completed_at is not None
 
@@ -115,11 +121,13 @@ class TestJobQueue:
     ) -> None:
         job_queue.add_job(JobType.INGEST, payload={})
         fetched = job_queue.fetch_next_job()
+        assert fetched is not None
 
         job_queue.complete_job(fetched.id, error="Something went wrong")
 
         with Session(test_engine) as session:
             failed = session.get(Job, fetched.id)
+            assert failed is not None
             assert failed.status == JobStatus.FAILED
             assert failed.error_message == "Something went wrong"
 
@@ -130,11 +138,13 @@ class TestJobQueue:
     ) -> None:
         job_queue.add_job(JobType.METADATA, payload={})
         fetched = job_queue.fetch_next_job()
+        assert fetched is not None
 
         job_queue.retry_job(fetched.id, "Temporary error")
 
         with Session(test_engine) as session:
             retried = session.get(Job, fetched.id)
+            assert retried is not None
             assert retried.status == JobStatus.PENDING
             assert retried.retry_count == 1
             assert retried.next_retry_at is not None
@@ -166,6 +176,7 @@ class TestJobQueue:
 
         with Session(test_engine) as session:
             job = session.get(Job, stale_id)
+            assert job is not None
             assert job.status == JobStatus.PENDING
 
     def test_complete_unknown_job_handles_gracefully(
@@ -197,6 +208,7 @@ class TestJobQueue:
         job_queue.add_job(JobType.METADATA, payload={})
 
         job = job_queue.fetch_next_job()
+        assert job is not None
         job_queue.complete_job(job.id)
 
         stats = job_queue.get_queue_stats()

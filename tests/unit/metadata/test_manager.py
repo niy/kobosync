@@ -192,4 +192,4 @@ class TestMetadataManager:
                 title="Test", filepath=str(synthetic_epub)
             )
 
-        assert result["title"] == 12345
+        assert result["title"] == 12345  # type: ignore[comparison-overlap]

@@ -16,7 +16,6 @@ from kobosync.utils.kobo_token import KoboSyncToken
 def test_settings() -> Settings:
     return Settings(
         USER_TOKEN="test_token",
-        _env_file=None,
     )
 
 
@@ -79,7 +78,7 @@ class TestInitialization:
 
     def test_catch_all_proxy(self, app_client: TestClient) -> None:
         mock_proxy = AsyncMock(spec=KoboProxyService)
-        from fastapi import Response
+        from fastapi import FastAPI, Response
 
         mock_proxy.proxy_request.return_value = Response(
             content=b'{"proxied": true}',
@@ -87,7 +86,9 @@ class TestInitialization:
             headers={"X-Custom-Header": "test-value"},
         )
 
-        app_client.app.dependency_overrides[KoboProxyService] = lambda: mock_proxy
+        app = app_client.app
+        assert isinstance(app, FastAPI)
+        app.dependency_overrides[KoboProxyService] = lambda: mock_proxy
 
         try:
             response = app_client.get("/api/kobo/test_token/some/unknown/path")
@@ -99,7 +100,7 @@ class TestInitialization:
             args, _ = mock_proxy.proxy_request.call_args
             assert args[1] == "/some/unknown/path"
         finally:
-            app_client.app.dependency_overrides.pop(KoboProxyService, None)
+            app.dependency_overrides.pop(KoboProxyService, None)
 
 
 class TestAuthDevice:
@@ -196,6 +197,8 @@ class TestLibrarySync:
 
     def test_sync_library_proxy_token_update(self, app_client: TestClient) -> None:
         mock_proxy = AsyncMock(spec=KoboProxyService)
+        from fastapi import FastAPI
+
         mock_proxy.fetch_kobo_sync.return_value = (
             200,
             {
@@ -205,7 +208,9 @@ class TestLibrarySync:
             },
             [],
         )
-        app_client.app.dependency_overrides[KoboProxyService] = lambda: mock_proxy
+        app = app_client.app
+        assert isinstance(app, FastAPI)
+        app.dependency_overrides[KoboProxyService] = lambda: mock_proxy
 
         try:
             response = app_client.get("/api/kobo/test_token/v1/library/sync")
@@ -215,23 +220,27 @@ class TestLibrarySync:
             new_token = KoboSyncToken.from_base64(new_token_str)
             assert new_token.rawKoboSyncToken == "new-remote-token"
         finally:
-            app_client.app.dependency_overrides.pop(KoboProxyService, None)
+            app.dependency_overrides.pop(KoboProxyService, None)
 
     def test_sync_library_headers_proxying(self, app_client: TestClient) -> None:
         mock_proxy = AsyncMock(spec=KoboProxyService)
+        from fastapi import FastAPI
+
         mock_proxy.fetch_kobo_sync.return_value = (
             200,
             {"X-Kobo-Sync": "some-value"},
             [],
         )
-        app_client.app.dependency_overrides[KoboProxyService] = lambda: mock_proxy
+        app = app_client.app
+        assert isinstance(app, FastAPI)
+        app.dependency_overrides[KoboProxyService] = lambda: mock_proxy
 
         try:
             response = app_client.get("/api/kobo/test_token/v1/library/sync")
             assert response.status_code == 200
             assert response.headers["X-Kobo-Sync"] == "some-value"
         finally:
-            app_client.app.dependency_overrides.pop(KoboProxyService, None)
+            app.dependency_overrides.pop(KoboProxyService, None)
 
 
 class TestDownload:
@@ -450,13 +459,15 @@ class TestReadingState:
 
     def test_get_reading_state_proxy(self, app_client: TestClient) -> None:
         mock_proxy = AsyncMock(spec=KoboProxyService)
-        from fastapi import Response
+        from fastapi import FastAPI, Response
 
         mock_proxy.proxy_request.return_value = Response(
             content=b'[{"Status": "Read"}]', status_code=200
         )
 
-        app_client.app.dependency_overrides[KoboProxyService] = lambda: mock_proxy
+        app = app_client.app
+        assert isinstance(app, FastAPI)
+        app.dependency_overrides[KoboProxyService] = lambda: mock_proxy
 
         try:
             response = app_client.get("/api/kobo/test_token/v1/library/remote-id/state")
@@ -468,7 +479,7 @@ class TestReadingState:
             args, _ = mock_proxy.proxy_request.call_args
             assert args[1] == "/v1/library/remote-id/state"
         finally:
-            app_client.app.dependency_overrides.pop(KoboProxyService, None)
+            app.dependency_overrides.pop(KoboProxyService, None)
 
     def test_update_reading_state_proxy(self, app_client: TestClient) -> None:
         mock_proxy = AsyncMock(spec=KoboProxyService)
@@ -478,7 +489,11 @@ class TestReadingState:
             content=b'{"updated": true}', status_code=200
         )
 
-        app_client.app.dependency_overrides[KoboProxyService] = lambda: mock_proxy
+        from fastapi import FastAPI
+
+        app = app_client.app
+        assert isinstance(app, FastAPI)
+        app.dependency_overrides[KoboProxyService] = lambda: mock_proxy
 
         try:
             response = app_client.put(
@@ -491,7 +506,7 @@ class TestReadingState:
 
             mock_proxy.proxy_request.assert_called_once()
         finally:
-            app_client.app.dependency_overrides.pop(KoboProxyService, None)
+            app.dependency_overrides.pop(KoboProxyService, None)
 
     def test_update_reading_state_new_entry(
         self, app_client: TestClient, temp_db: str

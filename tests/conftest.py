@@ -70,13 +70,20 @@ def integration_ctx(
 
     app.dependency_overrides[get_session_dependency] = get_test_session
 
-    start_worker(test_settings, test_engine, test_queue)
+    from unittest.mock import patch
 
-    yield IntegrationContext(
-        watch_dir=watch_dir,
-        settings=test_settings,
-        engine=test_engine,
-        queue=test_queue,
-    )
+    # Patch the global engine in database and main modules
+    with (
+        patch("kobosync.database.engine", test_engine),
+        patch("kobosync.main.engine", test_engine),
+    ):
+        start_worker(test_settings, test_engine, test_queue)
+
+        yield IntegrationContext(
+            watch_dir=watch_dir,
+            settings=test_settings,
+            engine=test_engine,
+            queue=test_queue,
+        )
 
     app.dependency_overrides.clear()

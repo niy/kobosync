@@ -1,5 +1,6 @@
 import asyncio
 from pathlib import Path
+from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
@@ -16,7 +17,7 @@ def real_files_setup(integration_ctx, client):
     yield ctx
 
 
-async def wait_for_jobs(engine, timeout_sec=5.0):
+async def wait_for_jobs(engine: Any, timeout_sec: float = 5.0) -> None:
     try:
         async with asyncio.timeout(timeout_sec):
             while True:

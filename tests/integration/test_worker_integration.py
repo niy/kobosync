@@ -3,7 +3,7 @@ import contextlib
 from pathlib import Path
 
 import pytest
-from sqlmodel import Session, select
+from sqlmodel import Session, col, select
 from tests.conftest import IntegrationContext
 
 from kobosync.models import Book, Job
@@ -37,7 +37,7 @@ async def test_worker_processing_flow(integration_ctx: IntegrationContext):
         for _ in range(100):
             with Session(ctx.engine) as session:
                 book = session.exec(
-                    select(Book).where(Book.title.like(f"%{target_title}%"))
+                    select(Book).where(col(Book.title).contains(target_title))
                 ).first()
                 if book:
                     found_book = True
@@ -51,7 +51,7 @@ async def test_worker_processing_flow(integration_ctx: IntegrationContext):
             assert len(jobs) > 0
 
             book = session.exec(
-                select(Book).where(Book.title.like(f"%{target_title}%"))
+                select(Book).where(col(Book.title).contains(target_title))
             ).one()
 
             assert "Shakespeare" in (book.author or "")
@@ -93,7 +93,7 @@ async def test_worker_pdf_processing(integration_ctx: IntegrationContext):
         for _ in range(100):
             with Session(ctx.engine) as session:
                 book = session.exec(
-                    select(Book).where(Book.title.like(f"%{target_title}%"))
+                    select(Book).where(col(Book.title).contains(target_title))
                 ).first()
                 if book and book.file_format == "pdf":
                     found_book = True
@@ -104,7 +104,7 @@ async def test_worker_pdf_processing(integration_ctx: IntegrationContext):
 
         with Session(ctx.engine) as session:
             book = session.exec(
-                select(Book).where(Book.title.like(f"%{target_title}%"))
+                select(Book).where(col(Book.title).contains(target_title))
             ).one()
             assert book.file_format == "pdf"
             assert book.title is not None

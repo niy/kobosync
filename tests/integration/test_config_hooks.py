@@ -188,6 +188,7 @@ async def test_embed_metadata_pdf(
 
         reader = PdfReader(test_file)
         info = reader.metadata
+        assert info is not None
         assert info.title == "Scraped Title"
         assert info.author == "Scraped Author"
 
@@ -267,13 +268,23 @@ async def test_delete_original_after_conversion(
 
         assert book_deleted, "Original book record was not marked as deleted"
 
-        with Session(ctx.engine) as session:
-            kepub_path_str = str(kepub_file)
-            new_book = session.exec(
-                select(Book).where(Book.file_path == kepub_path_str)
-            ).first()
-            assert new_book, "New KEPUB book record not found"
-            assert not new_book.is_deleted
+        # Wait for the new KEPUB book record to be created in the database
+        found_new_book = False
+        new_book = None
+        for _ in range(50):
+            with Session(ctx.engine) as session:
+                kepub_path_str = str(kepub_file)
+                new_book = session.exec(
+                    select(Book).where(Book.file_path == kepub_path_str)
+                ).first()
+                if new_book:
+                    found_new_book = True
+                    break
+            await asyncio.sleep(0.05)
+
+        assert found_new_book, "New KEPUB book record not found"
+        assert new_book
+        assert not new_book.is_deleted
 
     finally:
         watcher_task.cancel()

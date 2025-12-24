@@ -36,7 +36,7 @@ When running behind Nginx, ensure the following configuration is present in the 
 ```nginx
 location / {
     proxy_pass http://localhost:8000;
-    
+
     # Headers required for sync
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
