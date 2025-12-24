@@ -1,0 +1,60 @@
+site_name: KoboSync
+site_description: Headless Kobo library synchronization daemon.
+site_url: https://example.com/ # User should update this
+repo_name: KoboSync
+repo_url: https://github.com/niy/kobosync
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.instant
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+  palette:
+    # Light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to dark mode
+    # Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-night
+        name: Switch to light mode
+
+nav:
+  - Home: index.md
+  - Guide:
+    - Deployment: deployment.md
+    - Device Setup: device_setup.md
+    - Configuration: configuration.md
+  - Internals:
+    - Architecture: architecture.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - tables
+  - attr_list
+
+plugins:
+  - search
+
+extra_javascript:
+  - javascripts/token-generator.js
