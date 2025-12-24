@@ -33,6 +33,7 @@ dev = [
     "pytest-cov>=7.0.0",
     "pytest-xdist>=3.6.1",
     "ruff>=0.14.10",
+    "time-machine>=2.16.0",
 ]
 
 [build-system]

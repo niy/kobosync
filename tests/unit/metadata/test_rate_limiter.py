@@ -1,7 +1,9 @@
 import time
+from unittest.mock import patch
 
 import httpx
 import pytest
+import time_machine
 
 from kobosync.metadata.base import RateLimitedTransport
 
@@ -18,17 +20,21 @@ class TestRateLimitedTransport:
 
         transport._transport.handle_async_request = mock_handle  # type: ignore[method-assign]
 
-        request = httpx.Request("GET", "https://example.com")
-        start = time.monotonic()
-        await transport.handle_async_request(request)
-        first_duration = time.monotonic() - start
-        assert first_duration < 0.05
+        with time_machine.travel(0, tick=False):
+            request = httpx.Request("GET", "https://example.com")
 
-        start = time.monotonic()
-        await transport.handle_async_request(request)
-        second_duration = time.monotonic() - start
-        assert second_duration >= 0.1
-        assert second_duration < 0.15
+            start = time.monotonic()
+            await transport.handle_async_request(request)
+            first_duration = time.monotonic() - start
+            assert first_duration < 0.05
+
+            start = time.monotonic()
+
+            await transport.handle_async_request(request)
+
+            second_duration = time.monotonic() - start
+
+            assert second_duration == pytest.approx(0.1, abs=0.05)
 
         await transport.aclose()
 
@@ -43,17 +49,22 @@ class TestRateLimitedTransport:
 
         transport._transport.handle_async_request = mock_handle  # type: ignore[method-assign]
 
-        request = httpx.Request("GET", "https://example.com")
+        with (
+            time_machine.travel(0, tick=False),
+            patch("random.uniform", return_value=0.03) as mock_random,
+        ):
+            request = httpx.Request("GET", "https://example.com")
 
-        await transport.handle_async_request(request)
+            await transport.handle_async_request(request)
 
-        delays = []
-        for _ in range(5):
+            # Manually reset last request time to current time (0) to force a wait
+            transport._last_request_time = time.monotonic()
+
             start = time.monotonic()
             await transport.handle_async_request(request)
-            delays.append(time.monotonic() - start)
+            duration = time.monotonic() - start
 
-        assert all(d >= 0.05 for d in delays)
-        assert any(d > 0.06 for d in delays)
+            assert duration == pytest.approx(0.08, abs=0.05)
+            mock_random.assert_called_with(0, 0.05)
 
         await transport.aclose()
