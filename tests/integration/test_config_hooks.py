@@ -37,6 +37,7 @@ async def hooks_ctx(
         CONVERT_EPUB=True,
         EMBED_METADATA=True,
         DELETE_ORIGINAL_AFTER_CONVERSION=False,
+        FETCH_EXTERNAL_METADATA=True,
     )
 
     test_queue = JobQueue(test_settings, test_engine)
@@ -61,19 +62,12 @@ async def hooks_ctx(
         mock_client.get.return_value = mock_response
         mock_get_client.return_value = mock_client
 
-        with (
-            patch(
-                "kobosync.metadata.manager.AmazonProvider",
-                return_value=mock_amazon_provider,
-            ),
-            patch("kobosync.worker.KepubConverter", return_value=mock_kepub_converter),
-        ):
-            yield IntegrationContext(
-                watch_dir=watch_dir,
-                settings=test_settings,
-                engine=test_engine,
-                queue=test_queue,
-            )
+        yield IntegrationContext(
+            watch_dir=watch_dir,
+            settings=test_settings,
+            engine=test_engine,
+            queue=test_queue,
+        )
 
 
 @pytest.mark.asyncio
