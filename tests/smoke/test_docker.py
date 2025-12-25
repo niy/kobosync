@@ -93,7 +93,7 @@ def test_e2e_sync_flow(client: httpx.Client) -> None:
         except httpx.RequestError as e:
             pytest.fail(f"Connection failed during polling: {e}")
 
-        time.sleep(1)
+        time.sleep(0.2)
 
     assert book_id, "Timed out waiting for book to be synced"
 

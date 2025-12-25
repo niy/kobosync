@@ -1,6 +1,6 @@
-import json
 from typing import Any
 
+import orjson
 from fastapi import Request, Response
 
 from ..http_client import HttpClientManager
@@ -95,7 +95,7 @@ class KoboProxyService:
         except Exception as e:
             log.error("Proxy request failed", error=str(e), exc_info=True)
             return Response(
-                content=json.dumps({"error": "Proxy failed", "detail": str(e)}),
+                content=orjson.dumps({"error": "Proxy failed", "detail": str(e)}),
                 status_code=502,
                 media_type="application/json",
             )
@@ -114,10 +114,10 @@ class KoboProxyService:
 
         if response.status_code == 200:
             try:
-                data = json.loads(bytes(response.body))
+                data = orjson.loads(bytes(response.body))
                 if isinstance(data, list):
                     entitlements = data
-            except (json.JSONDecodeError, TypeError) as e:
+            except (orjson.JSONDecodeError, TypeError) as e:
                 logger.warning(
                     "Failed to parse Kobo sync response",
                     error=str(e),

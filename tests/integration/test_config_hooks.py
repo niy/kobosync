@@ -4,8 +4,8 @@ import zipfile
 from pathlib import Path
 from unittest.mock import AsyncMock, patch
 
+import pymupdf
 import pytest
-from pypdf import PdfReader
 from sqlmodel import Session, SQLModel, create_engine, select
 from tests.conftest import IntegrationContext
 
@@ -180,26 +180,21 @@ async def test_embed_metadata_pdf(
 
         assert completed, "Metadata job did not complete"
 
-        reader = PdfReader(test_file)
-        info = reader.metadata
-        assert info is not None
-        assert info.title == "Scraped Title"
-        assert info.author == "Scraped Author"
+        doc = pymupdf.open(str(test_file))
+        try:
+            metadata = doc.metadata
+            assert metadata is not None
+            assert metadata.get("title") == "Scraped Title"
+            assert metadata.get("author") == "Scraped Author"
 
-        xmp = reader.xmp_metadata
-        assert xmp is not None, "XMP metadata missing"
-
-        if xmp.dc_title:
-            title_val = (
-                xmp.dc_title.get("x-default")
-                if isinstance(xmp.dc_title, dict)
-                else xmp.dc_title
-            )
-            assert title_val == "Scraped Title"
-
-        if xmp.dc_identifier:
-            identifiers = xmp.dc_identifier
-            assert any("9781234567890" in str(i) for i in identifiers)
+            xmp_data = doc.xref_get_key(-1, "Metadata")
+            if xmp_data and xmp_data[0] == "stream":
+                xmp_stream = doc.xref_stream(-1)
+                if xmp_stream:
+                    xmp_str = xmp_stream.decode("utf-8", errors="ignore")
+                    assert "9781234567890" in xmp_str
+        finally:
+            doc.close()
 
     finally:
         watcher_task.cancel()

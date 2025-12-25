@@ -5,11 +5,12 @@ description = "Headless Kobo library synchronization daemon"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
-    "beautifulsoup4>=4.14.3",
     "fastapi>=0.127.0",
     "httpx>=0.28.1",
+    "orjson>=3.10.0",
     "pydantic-settings>=2.12.0",
-    "pypdf>=6.5.0",
+    "pymupdf>=1.25.0",
+    "selectolax>=0.3.21",
     "sqlmodel>=0.0.27",
     "structlog>=25.5.0",
     "uvicorn[standard]>=0.40.0",
@@ -57,6 +58,13 @@ addopts = [
     "--tb=short",
     "--strict-markers",
 ]
+filterwarnings = [
+    "ignore:builtin type swigvarlink has no __module__ attribute:DeprecationWarning",
+    "ignore:builtin type SwigPyPacked has no __module__ attribute:DeprecationWarning",
+    "ignore:builtin type SwigPyObject has no __module__ attribute:DeprecationWarning",
+    "ignore:.*swigvarlink.*:DeprecationWarning",
+    "ignore:.*SwigPy.*:DeprecationWarning",
+]
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "integration: marks tests as integration tests",
@@ -80,13 +88,11 @@ no_implicit_optional = true
 warn_redundant_casts = true
 warn_unused_ignores = false  # SQLAlchemy/SQLModel stubs are version-dependent
 
-
-
 # Third-party libraries without type stubs
 [[tool.mypy.overrides]]
 module = [
-    "bs4.*",
-    "pypdf.*",
+    "pymupdf",
+    "pymupdf.*",
 ]
 ignore_missing_imports = true
 

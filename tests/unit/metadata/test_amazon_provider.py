@@ -17,19 +17,74 @@ class TestAmazonProvider:
     async def test_fetch_metadata_success(self, provider: AmazonProvider) -> None:
         mock_search_html = """
         <html>
-        <div data-component-type="s-search-result">
-            <h2><a href="/dp/B001234567">Book Result</a></h2>
+        <div data-component-type="s-search-result" class="s-result-item s-asin">
+            <div class="sg-col-inner">
+                <div class="s-widget-container">
+                    <span class="a-declarative">
+                        <div class="puis-card-container s-card-container">
+                            <div class="a-section">
+                                <div class="sg-row">
+                                    <div class="sg-col sg-col-4-of-12 sg-col-8-of-16 sg-col-12-of-20 s-list-col-right">
+                                        <div class="sg-col-inner">
+                                            <div class="a-section a-spacing-small a-spacing-top-small">
+                                                <h2 class="a-size-mini a-spacing-none a-color-base s-line-clamp-2">
+                                                    <a class="a-link-normal s-underline-text s-underline-link-text s-link-style a-text-normal" href="/dp/B001234567">
+                                                        <span class="a-size-medium a-color-base a-text-normal">Book Result</span>
+                                                    </a>
+                                                </h2>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </span>
+                </div>
+            </div>
         </div>
         </html>
         """
 
         mock_detail_html = """
         <html>
-        <div id="productTitle">Test Book Title</div>
-        <div id="bylineInfo_feature_div">
-            <span class="author"><a>Test Author</a></span>
+        <div id="dp-container" class="a-container">
+            <div id="centerCol" class="centerColAlign">
+                <div id="title_feature_div" class="celwidget">
+                    <div class="a-section a-spacing-none">
+                        <h1 id="title" class="a-spacing-none a-text-normal">
+                            <span id="productTitle" class="a-size-large celwidget">Test Book Title</span>
+                        </h1>
+                    </div>
+                </div>
+                <div id="bylineInfo_feature_div" class="celwidget">
+                    <div id="bylineInfo" class="a-section a-spacing-micro bylineHidden feature">
+                        <span class="author notFaded">
+                            <a class="a-link-normal" href="/author/Test-Author">Test Author</a>
+                            <span class="contribution"><span class="a-color-secondary">(Author)</span></span>
+                        </span>
+                    </div>
+                </div>
+                <div id="averageCustomerReviews_feature_div">
+                    <span id="acrPopover" class="reviewCountTextLinkedHistogram noUnderline" title="4.5 out of 5 stars">
+                        <span class="a-icon-alt">4.5 out of 5 stars</span>
+                    </span>
+                </div>
+                <div id="bookDescription_feature_div">
+                    <div data-a-expander-name="book_description_expander">
+                        <div class="a-expander-content">
+                            <p>Test Description</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="leftCol" class="leftColAlign">
+                <div id="booksImageBlock_feature_div">
+                    <div id="main-image-container">
+                        <img id="landingImage" src="https://example.com/cover.jpg" data-old-hires="https://example.com/cover_high_res.jpg" />
+                    </div>
+                </div>
+            </div>
         </div>
-        <img id="landingImage" src="https://example.com/cover.jpg" />
         </html>
         """
 

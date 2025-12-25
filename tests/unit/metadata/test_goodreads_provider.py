@@ -13,19 +13,43 @@ class TestGoodreadsProvider:
     @pytest.mark.asyncio
     async def test_fetch_metadata_success(self, provider: GoodreadsProvider) -> None:
         search_html = """
-        <html>
         <table class="tableList">
-            <tr><a class="bookTitle" href="/book/show/12345">Test Book</a></tr>
+            <tr itemscope itemtype="http://schema.org/Book">
+                <td width="5%" valign="top">
+                    <img class="bookCover" src="https://example.com/cover.jpg" />
+                </td>
+                <td width="100%" valign="top">
+                    <a class="bookTitle" itemprop="url" href="/book/show/12345">
+                        <span itemprop="name">Test Book</span>
+                    </a>
+                    <br/>
+                    <span class="by">by</span>
+                    <span itemprop="author">
+                        <div class="authorName__container">
+                            <a class="authorName" href="/author/show/1"><span>GR Author</span></a>
+                        </div>
+                    </span>
+                </td>
+            </tr>
         </table>
-        </html>
         """
 
         book_html = """
         <html>
-        <h1 data-testid="bookTitle">Goodreads Book Title</h1>
-        <span class="authorName">GR Author</span>
-        <div id="description">
-            <span>Book description here</span>
+        <div class="BookPage__mainContent">
+            <div class="BookInfo">
+                <h1 data-testid="bookTitle">Goodreads Book Title</h1>
+                <div class="BookPageMetadataSection">
+                    <span class="authorName">GR Author</span>
+                    <span itemprop="ratingValue">4.5</span>
+                </div>
+                <div data-testid="description">
+                    <span class="Formatted">Book description here</span>
+                </div>
+                <div class="BookCover">
+                    <img class="ResponsiveImage" src="https://example.com/cover_large.jpg" />
+                </div>
+            </div>
         </div>
         </html>
         """

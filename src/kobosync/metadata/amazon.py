@@ -4,7 +4,7 @@ import re
 import urllib.parse
 from typing import TYPE_CHECKING
 
-from bs4 import BeautifulSoup
+from selectolax.parser import HTMLParser
 
 from ..logging_config import get_logger
 from .base import RateLimitedProvider
@@ -125,8 +125,8 @@ class AmazonProvider(RateLimitedProvider):
                     )
                 return None
 
-            soup = BeautifulSoup(response.text, "html.parser")
-            book_url = self._extract_book_url(soup)
+            tree = HTMLParser(response.text)
+            book_url = self._extract_book_url(tree)
 
             if not book_url:
                 log.debug("No book found in search results")
@@ -169,8 +169,8 @@ class AmazonProvider(RateLimitedProvider):
                     )
                 return None
 
-            detail_soup = BeautifulSoup(response.text, "html.parser")
-            metadata = self._parse_details(detail_soup)
+            detail_tree = HTMLParser(response.text)
+            metadata = self._parse_details(detail_tree)
 
             if metadata.get("title"):
                 log.info(
@@ -187,26 +187,28 @@ class AmazonProvider(RateLimitedProvider):
             log.error("Amazon scraping error", error=str(e), exc_info=True)
             return None
 
-    def _extract_book_url(self, soup: BeautifulSoup) -> str | None:
-        results = soup.select('div[data-component-type="s-search-result"]')
+    def _extract_book_url(self, tree: HTMLParser) -> str | None:
+        results = tree.css('div[data-component-type="s-search-result"]')
 
         for result in results:
-            link = result.select_one("h2 a")
+            link = result.css_first("h2 a")
             if link:
-                href = link.get("href")
+                href = link.attributes.get("href")
                 if href:
                     return str(href)
 
         return None
 
-    def _parse_details(self, soup: BeautifulSoup) -> BookMetadata:
+    def _parse_details(self, tree: HTMLParser) -> BookMetadata:
         metadata: BookMetadata = {}
 
         def get_text(*selectors: str) -> str | None:
             for selector in selectors:
-                element = soup.select_one(selector)
+                element = tree.css_first(selector)
                 if element:
-                    return element.get_text().strip()
+                    text = element.text()
+                    if text:
+                        return text.strip()
             return None
 
         title = get_text(
@@ -218,47 +220,52 @@ class AmazonProvider(RateLimitedProvider):
         if title:
             metadata["title"] = title
 
-        author_elements = soup.select("#bylineInfo_feature_div .author a")
+        author_elements = tree.css("#bylineInfo_feature_div .author a")
         if not author_elements:
-            author_elements = soup.select("#bylineInfo .author a")
+            author_elements = tree.css("#bylineInfo .author a")
 
         if author_elements:
-            metadata["author"] = author_elements[0].get_text().strip()
+            text = author_elements[0].text()
+            if text:
+                metadata["author"] = text.strip()
 
-        desc_element = soup.select_one(
+        desc_element = tree.css_first(
             '[data-a-expander-name="book_description_expander"] .a-expander-content'
         )
         if desc_element:
-            metadata["description"] = desc_element.decode_contents()
+            metadata["description"] = desc_element.html or ""
 
-        series_element = soup.select_one(
+        series_element = tree.css_first(
             "#rpi-attribute-book_details-series .rpi-attribute-value a span"
         )
         if series_element:
-            series_text = series_element.get_text().strip()
-            metadata["series"] = series_text
+            series_text = series_element.text()
+            if series_text:
+                series_text = series_text.strip()
+                metadata["series"] = series_text
 
-            match = re.search(r"Book (\d+)", series_text)
-            if match:
-                metadata["series_index"] = float(match.group(1))
+                match = re.search(r"Book (\d+)", series_text)
+                if match:
+                    metadata["series_index"] = float(match.group(1))
 
-        rating_element = soup.select_one(
+        rating_element = tree.css_first(
             "#averageCustomerReviews_feature_div span#acrPopover"
         )
         if rating_element:
-            rating_text = rating_element.get_text().strip()
-            match = re.search(r"([\d.]+)", rating_text)
-            if match:
-                metadata["rating"] = float(match.group(1))
+            rating_text = rating_element.text()
+            if rating_text:
+                match = re.search(r"([\d.]+)", rating_text.strip())
+                if match:
+                    metadata["rating"] = float(match.group(1))
 
-        img_element = soup.select_one("#landingImage")
+        img_element = tree.css_first("#landingImage")
         if img_element:
-            high_res = img_element.get("data-old-hires")
-            if isinstance(high_res, str):
+            high_res = img_element.attributes.get("data-old-hires")
+            if high_res:
                 metadata["cover_path"] = high_res
             else:
-                src = img_element.get("src")
-                if isinstance(src, str):
+                src = img_element.attributes.get("src")
+                if src:
                     metadata["cover_path"] = src
 
         return metadata

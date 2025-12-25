@@ -59,20 +59,29 @@ class MetadataManager:
         if self._settings.FETCH_EXTERNAL_METADATA:
             if search_isbn:
                 log.info("Strategy 1: Amazon by ISBN", isbn=search_isbn)
-                result = await self._amazon.fetch_metadata(search_isbn)
-                if result:
-                    return self._merge_metadata(metadata, result)
+                try:
+                    result = await self._amazon.fetch_metadata(search_isbn)
+                    if result:
+                        return self._merge_metadata(metadata, result)
+                except Exception as e:
+                    log.warning("Amazon ISBN search failed", error=str(e))
 
             query = f"{title} {author}".strip() if author else title
             log.info("Strategy 2: Amazon by query", query=query)
-            result = await self._amazon.fetch_metadata(query)
-            if result:
-                return self._merge_metadata(metadata, result)
+            try:
+                result = await self._amazon.fetch_metadata(query)
+                if result:
+                    return self._merge_metadata(metadata, result)
+            except Exception as e:
+                log.warning("Amazon query search failed", error=str(e))
 
             log.info("Strategy 3: Goodreads fallback", query=query)
-            result = await self._goodreads.fetch_metadata(query)
-            if result:
-                return self._merge_metadata(metadata, result)
+            try:
+                result = await self._goodreads.fetch_metadata(query)
+                if result:
+                    return self._merge_metadata(metadata, result)
+            except Exception as e:
+                log.warning("Goodreads search failed", error=str(e))
         else:
             log.debug("External metadata fetching disabled")
 

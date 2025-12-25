@@ -2,7 +2,7 @@ import contextlib
 import urllib.parse
 from typing import TYPE_CHECKING
 
-from bs4 import BeautifulSoup
+from selectolax.parser import HTMLParser
 
 from ..logging_config import get_logger
 from .base import RateLimitedProvider
@@ -42,8 +42,8 @@ class GoodreadsProvider(RateLimitedProvider):
                 )
                 return None
 
-            soup = BeautifulSoup(response.text, "html.parser")
-            book_url = self._extract_book_url(soup)
+            tree = HTMLParser(response.text)
+            book_url = self._extract_book_url(tree)
 
             if not book_url:
                 log.debug("No book found in Goodreads search")
@@ -72,8 +72,8 @@ class GoodreadsProvider(RateLimitedProvider):
                 )
                 return None
 
-            detail_soup = BeautifulSoup(response.text, "html.parser")
-            metadata = self._parse_details(detail_soup)
+            detail_tree = HTMLParser(response.text)
+            metadata = self._parse_details(detail_tree)
 
             if metadata.get("title"):
                 log.info(
@@ -90,49 +90,55 @@ class GoodreadsProvider(RateLimitedProvider):
             log.error("Goodreads scraping error", error=str(e), exc_info=True)
             return None
 
-    def _extract_book_url(self, soup: BeautifulSoup) -> str | None:
-        link = soup.select_one("table.tableList tr a.bookTitle")
+    def _extract_book_url(self, tree: HTMLParser) -> str | None:
+        link = tree.css_first("table.tableList tr a.bookTitle")
         if link:
-            href = link.get("href")
+            href = link.attributes.get("href")
             return str(href) if href else None
         return None
 
-    def _parse_details(self, soup: BeautifulSoup) -> BookMetadata:
+    def _parse_details(self, tree: HTMLParser) -> BookMetadata:
         metadata: BookMetadata = {}
 
-        title_element = soup.select_one('h1[data-testid="bookTitle"]')
+        title_element = tree.css_first('h1[data-testid="bookTitle"]')
         if not title_element:
-            title_element = soup.select_one("#bookTitle")
+            title_element = tree.css_first("#bookTitle")
 
         if title_element:
-            metadata["title"] = title_element.get_text().strip()
+            text = title_element.text()
+            if text:
+                metadata["title"] = text.strip()
 
-        author_element = soup.select_one(".authorName")
+        author_element = tree.css_first(".authorName")
         if not author_element:
-            author_element = soup.select_one('span[data-testid="name"]')
+            author_element = tree.css_first('span[data-testid="name"]')
 
         if author_element:
-            metadata["author"] = author_element.get_text().strip()
+            text = author_element.text()
+            if text:
+                metadata["author"] = text.strip()
 
-        desc_element = soup.select_one("#description span")
+        desc_element = tree.css_first("#description span")
         if not desc_element:
-            desc_element = soup.select_one('div[data-testid="description"]')
+            desc_element = tree.css_first('div[data-testid="description"]')
 
         if desc_element:
-            metadata["description"] = desc_element.decode_contents()
+            metadata["description"] = desc_element.html or ""
 
-        rating_element = soup.select_one("[itemprop=ratingValue]")
+        rating_element = tree.css_first("[itemprop=ratingValue]")
         if rating_element:
-            with contextlib.suppress(ValueError):
-                metadata["rating"] = float(rating_element.get_text().strip())
+            text = rating_element.text()
+            if text:
+                with contextlib.suppress(ValueError):
+                    metadata["rating"] = float(text.strip())
 
-        img_element = soup.select_one("#coverImage")
+        img_element = tree.css_first("#coverImage")
         if not img_element:
-            img_element = soup.select_one("img.ResponsiveImage")
+            img_element = tree.css_first("img.ResponsiveImage")
 
         if img_element:
-            src = img_element.get("src")
-            if isinstance(src, str):
+            src = img_element.attributes.get("src")
+            if src:
                 metadata["cover_path"] = src
 
         return metadata

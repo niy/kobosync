@@ -2,11 +2,11 @@ import os
 import re
 import shutil
 import tempfile
-from datetime import UTC
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
-from pypdf import PdfReader, PdfWriter
+import pymupdf
 
 from ..logging_config import get_logger
 
@@ -26,18 +26,37 @@ class PdfMetadataExtractor:
             return metadata
 
         try:
-            reader = PdfReader(filepath)
+            doc = pymupdf.open(filepath)
+            try:
+                pdf_meta = doc.metadata
+                if pdf_meta:
+                    if pdf_meta.get("title"):
+                        metadata["title"] = pdf_meta["title"]
+                    if pdf_meta.get("author"):
+                        metadata["author"] = pdf_meta["author"]
+                    if pdf_meta.get("subject"):
+                        metadata["description"] = pdf_meta["subject"]
 
-            self._extract_info(reader, metadata)
+                xmp_data = doc.xref_get_key(-1, "Metadata")
+                if xmp_data and xmp_data[0] == "stream":
+                    try:
+                        xmp_stream = doc.xref_stream(-1)
+                        if xmp_stream:
+                            self._parse_xmp(
+                                xmp_stream.decode("utf-8", errors="ignore"), metadata
+                            )
+                    except Exception as e:
+                        logger.debug("Failed to parse XMP stream", error=str(e))
 
-            self._extract_xmp(reader, metadata)
+                if metadata.get("isbn"):
+                    metadata["isbn"] = re.sub(
+                        r"[^0-9X]",
+                        "",
+                        metadata["isbn"].upper(),
+                    )
 
-            if metadata.get("isbn"):
-                metadata["isbn"] = re.sub(
-                    r"[^0-9X]",
-                    "",
-                    metadata["isbn"].upper(),
-                )
+            finally:
+                doc.close()
 
         except Exception as e:
             logger.warning(
@@ -48,18 +67,64 @@ class PdfMetadataExtractor:
 
         return metadata
 
+    def _parse_xmp(self, xmp_str: str, metadata: BookMetadata) -> None:
+        """Parse XMP metadata from XML string."""
+        import xml.etree.ElementTree as ET
+
+        try:
+            ns_dc = "http://purl.org/dc/elements/1.1/"
+
+            root = ET.fromstring(xmp_str)
+
+            for elem in root.iter(f"{{{ns_dc}}}title"):
+                for li in elem.iter():
+                    if li.text and li.text.strip():
+                        metadata["title"] = li.text.strip()
+                        break
+
+            for elem in root.iter(f"{{{ns_dc}}}creator"):
+                creators = []
+                for li in elem.iter():
+                    if li.text and li.text.strip():
+                        creators.append(li.text.strip())
+                if creators:
+                    metadata["author"] = ", ".join(creators)
+
+            for elem in root.iter(f"{{{ns_dc}}}description"):
+                for li in elem.iter():
+                    if li.text and li.text.strip():
+                        metadata["description"] = li.text.strip()
+                        break
+
+            for elem in root.iter(f"{{{ns_dc}}}language"):
+                for li in elem.iter():
+                    if li.text and li.text.strip():
+                        metadata["language"] = li.text.strip()
+                        break
+
+            for elem in root.iter(f"{{{ns_dc}}}identifier"):
+                for li in elem.iter():
+                    if li.text:
+                        isbn = self._parse_isbn(li.text)
+                        if isbn:
+                            metadata["isbn"] = isbn
+                            break
+
+        except ET.ParseError as e:
+            logger.debug("XMP parse error", error=str(e))
+
     def write_metadata(self, filepath: str, metadata: BookMetadata) -> None:
         path = Path(filepath)
         if not path.exists():
             raise FileNotFoundError(f"PDF file not found: {filepath}")
 
-        pdf_metadata = {}
+        pdf_metadata: dict[str, str] = {}
         if metadata.get("title"):
-            pdf_metadata["/Title"] = metadata["title"]
+            pdf_metadata["title"] = metadata["title"]
         if metadata.get("author"):
-            pdf_metadata["/Author"] = metadata["author"]
+            pdf_metadata["author"] = metadata["author"]
         if metadata.get("description"):
-            pdf_metadata["/Subject"] = metadata["description"]
+            pdf_metadata["subject"] = metadata["description"]
 
         keywords = []
         if metadata.get("isbn"):
@@ -67,15 +132,12 @@ class PdfMetadataExtractor:
         if metadata.get("language"):
             keywords.append(f"Lang:{metadata['language']}")
         if keywords:
-            pdf_metadata["/Keywords"] = ", ".join(keywords)
+            pdf_metadata["keywords"] = ", ".join(keywords)
 
-        try:
-            xmp_bytes = self._generate_xmp(metadata)
-        except Exception as e:
-            logger.warning("Failed to generate XMP", error=str(e))
-            xmp_bytes = None
+        pdf_metadata["producer"] = "KoboSync"
+        pdf_metadata["creator"] = "KoboSync"
 
-        if not pdf_metadata and not xmp_bytes:
+        if not pdf_metadata:
             return
 
         fd, temp_path_str = tempfile.mkstemp(dir=path.parent, suffix=".tmp")
@@ -83,19 +145,20 @@ class PdfMetadataExtractor:
         temp_path = Path(temp_path_str)
 
         try:
-            writer = PdfWriter(clone_from=path)
+            doc = pymupdf.open(filepath)
+            try:
+                doc.set_metadata(pdf_metadata)
 
-            if pdf_metadata:
-                writer.add_metadata(pdf_metadata)
+                xmp_bytes = self._generate_xmp(metadata)
+                if xmp_bytes:
+                    doc.set_xml_metadata(xmp_bytes.decode("utf-8"))
 
-            if xmp_bytes:
-                writer.xmp_metadata = xmp_bytes
-
-            with temp_path.open("wb") as f_out:
-                writer.write(f_out)
+                doc.save(str(temp_path), garbage=4, deflate=True)
+            finally:
+                doc.close()
 
             shutil.move(str(temp_path), str(path))
-            logger.info("Updated PDF metadata (Info+XMP)", path=filepath)
+            logger.info("Updated PDF metadata", path=filepath)
 
         except Exception:
             if temp_path.exists():
@@ -104,7 +167,6 @@ class PdfMetadataExtractor:
 
     def _generate_xmp(self, metadata: BookMetadata) -> bytes:
         import xml.etree.ElementTree as ET
-        from datetime import datetime
 
         NS_RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
         NS_XMP = "http://ns.adobe.com/xap/1.0/"
@@ -123,7 +185,7 @@ class PdfMetadataExtractor:
         ET.register_namespace("xml", NS_XML)
 
         xmpmeta = ET.Element("{adobe:ns:meta/}xmpmeta")
-        xmpmeta.set("{adobe:ns:meta/}xmptk", "KoboSync via pypdf")
+        xmpmeta.set("{adobe:ns:meta/}xmptk", "KoboSync via PyMuPDF")
 
         rdf = ET.SubElement(xmpmeta, f"{{{NS_RDF}}}RDF")
 
@@ -183,7 +245,6 @@ class PdfMetadataExtractor:
             desc_cal = ET.SubElement(rdf, f"{{{NS_RDF}}}Description")
             desc_cal.set(f"{{{NS_RDF}}}about", "")
 
-            # Calibre series is a structured value
             series_elem = ET.SubElement(desc_cal, f"{{{NS_CALIBRE}}}series")
             series_elem.set(f"{{{NS_RDF}}}parseType", "Resource")
 
@@ -202,68 +263,6 @@ class PdfMetadataExtractor:
         end = b'<?xpacket end="w"?>'
 
         return start + xml_str + end  # type: ignore[no-any-return]
-
-    def _extract_info(
-        self,
-        reader: PdfReader,
-        metadata: BookMetadata,
-    ) -> None:
-        info = reader.metadata
-        if not info:
-            return
-
-        if info.title:
-            metadata["title"] = info.title
-
-        if info.author:
-            metadata["author"] = info.author
-
-        if info.subject:
-            metadata["description"] = info.subject
-
-    def _extract_xmp(
-        self,
-        reader: PdfReader,
-        metadata: BookMetadata,
-    ) -> None:
-        try:
-            xmp = reader.xmp_metadata
-            if not xmp:
-                return
-
-            if xmp.dc_title:
-                title = self._get_localized_value(xmp.dc_title)
-                if title:
-                    metadata["title"] = title
-
-            if xmp.dc_creator and isinstance(xmp.dc_creator, list):
-                metadata["author"] = ", ".join(xmp.dc_creator)
-
-            if xmp.dc_description:
-                description = self._get_localized_value(xmp.dc_description)
-                if description:
-                    metadata["description"] = description
-
-            if xmp.dc_language and isinstance(xmp.dc_language, list):
-                metadata["language"] = xmp.dc_language[0]
-
-            # ISBN from identifiers
-            if xmp.dc_identifier:
-                for identifier in xmp.dc_identifier:
-                    isbn = self._parse_isbn(identifier)
-                    if isbn:
-                        metadata["isbn"] = isbn
-                        break
-        except Exception as e:
-            logger.warning("Error reading XMP", error=str(e))
-
-    def _get_localized_value(self, value: Any) -> str | None:
-        if isinstance(value, dict):
-            return value.get("x-default") or (
-                next(iter(value.values())) if value else None
-            )
-
-        return str(value) if value else None
 
     def _parse_isbn(self, text: str) -> str | None:
         if not text:

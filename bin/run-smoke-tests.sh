@@ -17,6 +17,7 @@ while [[ "$#" -gt 0 ]]; do
     case $1 in
         --skip-build) SKIP_BUILD=true ;;
         --image-tag) IMAGE_TAG="$2"; shift ;;
+        --with-metadata) WITH_METADATA=true ;;
         *) echo "Unknown parameter: $1"; exit 1 ;;
     esac
     shift
@@ -50,8 +51,8 @@ docker run -d --name ${CONTAINER_NAME} \
   --user "$(id -u):$(id -g)" \
   -p 8000:8000 \
   -e KS_USER_TOKEN=${TOKEN} \
-  -e KS_WORKER_POLL_INTERVAL=1.0 \
-  -e KS_FETCH_EXTERNAL_METADATA=false \
+  -e KS_WORKER_POLL_INTERVAL=0.1 \
+  -e KS_FETCH_EXTERNAL_METADATA=${WITH_METADATA:-false} \
   -v "$(pwd)/${BOOKS_DIR}:/books" \
   -v "$(pwd)/${DATA_DIR}:/data" \
   ${IMAGE_NAME}
@@ -83,6 +84,12 @@ export KS_USER_TOKEN=${TOKEN}
 export KS_TEST_URL="http://localhost:8000"
 export KS_TEST_BOOKS_DIR="${BOOKS_DIR}"
 
-uv run pytest tests/smoke/test_docker.py -v
+export KS_TEST_FETCH_METADATA=${WITH_METADATA:-false}
 
-echo -e "${GREEN}Smoke tests passed successfully!${NC}"
+if uv run pytest tests/smoke/test_docker.py tests/smoke/test_metadata_verification.py -v; then
+    echo -e "${GREEN}Smoke tests passed successfully!${NC}"
+else
+    echo -e "${RED}Smoke tests failed! Printing container logs:${NC}"
+    docker logs ${CONTAINER_NAME}
+    exit 1
+fi

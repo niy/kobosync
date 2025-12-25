@@ -1,6 +1,11 @@
-FROM python:3.14-alpine AS builder
+FROM python:3.14-slim AS builder
 
-RUN apk add --no-cache build-base libffi-dev curl
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libffi-dev \
+    curl \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN pip install uv
 
@@ -25,9 +30,7 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
     chmod +x /kepubify
 
 # Runtime Stage
-FROM python:3.14-alpine
-
-RUN apk add --no-cache libffi
+FROM python:3.14-slim
 
 WORKDIR /app
 
@@ -46,6 +49,6 @@ ENV PYTHONPATH=/app/src
 RUN mkdir -p /data
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
-    CMD wget -q --spider http://localhost:8000/health || exit 1
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')" || exit 1
 
 CMD ["uvicorn", "kobosync.main:app", "--host", "0.0.0.0", "--port", "8000"]
