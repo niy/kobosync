@@ -4,6 +4,8 @@ from pathlib import Path
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from .constants import PROJECT_ROOT
+
 
 class Settings(BaseSettings):
     """
@@ -19,14 +21,18 @@ class Settings(BaseSettings):
         300  # Polling interval (only used when WATCH_FORCE_POLLING=True)
     )
 
+    # Interval between polling for new jobs
+    WORKER_POLL_INTERVAL: float = 300.0
+
     # Core Settings
     USER_TOKEN: str
     CONVERT_EPUB: bool = True
     DELETE_ORIGINAL_AFTER_CONVERSION: bool = False
     EMBED_METADATA: bool = False
+    FETCH_EXTERNAL_METADATA: bool = True
 
     # Data Directory
-    DATA_PATH: Path = Field(default=Path("./data"))
+    DATA_PATH: Path = Field(default_factory=lambda: PROJECT_ROOT / "data")
 
     # Amazon Scraper Configuration
     AMAZON_DOMAIN: str = "com"
@@ -51,8 +57,8 @@ class Settings(BaseSettings):
         return f"sqlite:///{self.DATA_PATH}/kobosync.db"
 
     @property
-    def bin_path(self) -> Path:
-        return Path("bin")
+    def tools_path(self) -> Path:
+        return PROJECT_ROOT / ".tools"
 
 
 @lru_cache

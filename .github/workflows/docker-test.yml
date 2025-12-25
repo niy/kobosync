@@ -1,0 +1,51 @@
+name: Docker Smoke Test
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "docs/**"
+      - "*.md"
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - "docs/**"
+      - "*.md"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke-test:
+    name: Build & Smoke Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker Image
+        uses: docker/build-push-action@v6
+        with:
+          context: kobosync
+          load: true
+          tags: kobosync:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Install Test Dependencies
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Run Smoke Tests
+        run: |
+          chmod +x bin/run-smoke-tests.sh
+          ./bin/run-smoke-tests.sh --skip-build --image-tag test
+
+      - name: Container Logs (on failure)
+        if: failure()
+        run: docker logs kobosync_test

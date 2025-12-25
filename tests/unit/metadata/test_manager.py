@@ -12,6 +12,7 @@ class TestMetadataManager:
         mock_settings = MagicMock()
         mock_settings.AMAZON_DOMAIN = "com"
         mock_settings.AMAZON_COOKIE = None
+        mock_settings.FETCH_EXTERNAL_METADATA = True
         return MetadataManager(mock_settings)
 
     @pytest.mark.asyncio
@@ -193,3 +194,41 @@ class TestMetadataManager:
             )
 
         assert result["title"] == 12345  # type: ignore[comparison-overlap]
+
+    @pytest.mark.asyncio
+    async def test_external_metadata_disabled_when_flag_is_false(
+        self,
+        synthetic_epub: Path,
+    ) -> None:
+        mock_settings = MagicMock()
+        mock_settings.AMAZON_DOMAIN = "com"
+        mock_settings.AMAZON_COOKIE = None
+        mock_settings.FETCH_EXTERNAL_METADATA = False
+        manager = MetadataManager(mock_settings)
+
+        with (
+            patch.object(
+                manager._amazon,
+                "fetch_metadata",
+                new_callable=AsyncMock,
+            ) as mock_amazon,
+            patch.object(
+                manager._goodreads,
+                "fetch_metadata",
+                new_callable=AsyncMock,
+            ) as mock_goodreads,
+        ):
+            result = await manager.get_metadata(
+                title="Test Title",
+                author="Test Author",
+                isbn="1234567890",
+                filepath=str(synthetic_epub),
+            )
+
+        # External providers should never be called
+        mock_amazon.assert_not_called()
+        mock_goodreads.assert_not_called()
+
+        # Should still return metadata (from internal extraction)
+        assert result is not None
+        assert "isbn" in result

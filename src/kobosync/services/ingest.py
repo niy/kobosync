@@ -46,7 +46,7 @@ class IngestService:
         match event_type:
             case "DELETE":
                 await self._handle_delete(filepath, log)
-            case "ADD":
+            case "ADD" | "MODIFIED":
                 await self._handle_add(filepath, log)
             case _:
                 log.warning("Unknown ingest event type")

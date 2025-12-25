@@ -11,10 +11,15 @@ def minimized_test_delays() -> Generator[None]:
     Automatically patch all polling intervals and rate limits to minimal values.
     """
     with (
-        patch("kobosync.worker.WORKER_POLL_INTERVAL", 0.01),
         patch("kobosync.worker.WORKER_ERROR_BACKOFF", 0.01),
         patch("kobosync.watcher.WATCH_DEBOUNCE_MS", 1),
-        patch.dict("os.environ", {"KS_WATCH_POLL_DELAY_MS": "1"}),
+        patch.dict(
+            "os.environ",
+            {
+                "KS_WATCH_POLL_DELAY_MS": "1",
+                "KS_WORKER_POLL_INTERVAL": "0.01",
+            },
+        ),
         patch("kobosync.scheduler.RECONCILE_INTERVAL_MINUTES", 1),
         patch("kobosync.metadata.base.SCRAPER_MIN_DELAY", 0.0),
         patch("kobosync.metadata.base.SCRAPER_JITTER_MAX", 0.0),

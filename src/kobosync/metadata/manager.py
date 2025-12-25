@@ -15,6 +15,7 @@ logger = get_logger(__name__)
 
 class MetadataManager:
     def __init__(self, settings: Settings) -> None:
+        self._settings = settings
         self._epub_extractor = EpubMetadataExtractor()
         self._pdf_extractor = PdfMetadataExtractor()
 
@@ -55,22 +56,25 @@ class MetadataManager:
 
         search_isbn = isbn or internal_isbn
 
-        if search_isbn:
-            log.info("Strategy 1: Amazon by ISBN", isbn=search_isbn)
-            result = await self._amazon.fetch_metadata(search_isbn)
+        if self._settings.FETCH_EXTERNAL_METADATA:
+            if search_isbn:
+                log.info("Strategy 1: Amazon by ISBN", isbn=search_isbn)
+                result = await self._amazon.fetch_metadata(search_isbn)
+                if result:
+                    return self._merge_metadata(metadata, result)
+
+            query = f"{title} {author}".strip() if author else title
+            log.info("Strategy 2: Amazon by query", query=query)
+            result = await self._amazon.fetch_metadata(query)
             if result:
                 return self._merge_metadata(metadata, result)
 
-        query = f"{title} {author}".strip() if author else title
-        log.info("Strategy 2: Amazon by query", query=query)
-        result = await self._amazon.fetch_metadata(query)
-        if result:
-            return self._merge_metadata(metadata, result)
-
-        log.info("Strategy 3: Goodreads fallback", query=query)
-        result = await self._goodreads.fetch_metadata(query)
-        if result:
-            return self._merge_metadata(metadata, result)
+            log.info("Strategy 3: Goodreads fallback", query=query)
+            result = await self._goodreads.fetch_metadata(query)
+            if result:
+                return self._merge_metadata(metadata, result)
+        else:
+            log.debug("External metadata fetching disabled")
 
         if filepath:
             log.info("Strategy 4: Filename parsing")

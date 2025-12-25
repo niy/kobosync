@@ -4,7 +4,7 @@ __pycache__/
 
 *.so
 
-bin/
+.tools/
 .coverage
 htmlcov/
 
@@ -55,7 +55,7 @@ venv.bak/
 site/
 
 # Test artifacts
-test_temp/
+.tmp/
 
 # OS
 .DS_Store

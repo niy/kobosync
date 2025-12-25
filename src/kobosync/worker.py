@@ -21,8 +21,6 @@ if TYPE_CHECKING:
 logger = get_logger(__name__)
 stop_event = threading.Event()
 
-# Interval between polling for new jobs
-WORKER_POLL_INTERVAL = 300.0
 # Backoff interval after a critical worker loop error
 WORKER_ERROR_BACKOFF = 5.0
 
@@ -36,7 +34,7 @@ async def worker(
 
     logger.info(
         "Worker starting",
-        poll_interval=WORKER_POLL_INTERVAL,
+        poll_interval=settings_obj.WORKER_POLL_INTERVAL,
         max_retries=JOB_MAX_RETRIES,
     )
 
@@ -62,7 +60,7 @@ async def worker(
             job = queue.fetch_next_job()
 
             if not job:
-                await asyncio.sleep(WORKER_POLL_INTERVAL)
+                await asyncio.sleep(settings_obj.WORKER_POLL_INTERVAL)
                 continue
 
             log = logger.bind(

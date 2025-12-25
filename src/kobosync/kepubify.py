@@ -17,7 +17,7 @@ KEPUBIFY_DOWNLOAD_BASE = (
 
 class KepubifyBinary:
     def __init__(self, bin_dir: Path | None = None) -> None:
-        self.bin_dir = bin_dir or get_settings().bin_path
+        self.bin_dir = bin_dir or get_settings().tools_path
         self._cached_path: str | None = None
 
     def _get_platform_binary_name(self) -> str:
