@@ -41,6 +41,9 @@ jobs:
           version: "latest"
           enable-cache: true
 
+      - name: Create temporary directory
+        run: mkdir -p .tmp
+
       - name: Run Smoke Tests
         run: |
           chmod +x bin/run-smoke-tests.sh
