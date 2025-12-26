@@ -3,7 +3,7 @@ from uuid import uuid4
 
 import time_machine
 
-from kobosync.models import Book, ReadingState
+from kobold.models import Book, ReadingState
 
 
 class TestBookModel:

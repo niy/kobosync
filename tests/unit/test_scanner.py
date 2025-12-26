@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, Mock
 
 import pytest
 
-from kobosync.scanner import ScannerService
+from kobold.scanner import ScannerService
 
 
 class TestScanner:

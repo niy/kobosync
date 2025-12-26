@@ -4,8 +4,8 @@ from unittest.mock import AsyncMock, MagicMock, Mock, patch
 import pytest
 from sqlmodel import Session
 
-from kobosync.models import Book
-from kobosync.services.ingest import IngestService
+from kobold.models import Book
+from kobold.services.ingest import IngestService
 
 
 @pytest.fixture
@@ -69,10 +69,10 @@ async def test_handle_add_new_file(
     mock_session_instance.exec.return_value.first.side_effect = [None, None]
 
     with (
-        patch("kobosync.services.ingest.Session", mock_session),
+        patch("kobold.services.ingest.Session", mock_session),
         patch("pathlib.Path.exists", return_value=True),
         patch("pathlib.Path.stat", return_value=Mock(st_size=1024)),
-        patch("kobosync.services.ingest.get_file_hash", return_value="hash123"),
+        patch("kobold.services.ingest.get_file_hash", return_value="hash123"),
     ):
         await ingest_service._handle_add(path, Mock())
 
@@ -99,7 +99,7 @@ async def test_handle_delete(ingest_service, mock_session, mock_engine):
     mock_session.return_value.__enter__.return_value = mock_session_instance
     mock_session_instance.exec.return_value.first.return_value = mock_book
 
-    with patch("kobosync.services.ingest.Session", mock_session):
+    with patch("kobold.services.ingest.Session", mock_session):
         await ingest_service._handle_delete(path, Mock())
 
         mock_book.mark_deleted.assert_called_once()
@@ -129,10 +129,10 @@ async def test_handle_add_restores_soft_deleted_book(
     ]
 
     with (
-        patch("kobosync.services.ingest.Session", mock_session),
+        patch("kobold.services.ingest.Session", mock_session),
         patch("pathlib.Path.exists", return_value=True),
         patch("pathlib.Path.stat", return_value=Mock(st_size=1024)),
-        patch("kobosync.services.ingest.get_file_hash", return_value="hash456"),
+        patch("kobold.services.ingest.get_file_hash", return_value="hash456"),
     ):
         await ingest_service._handle_add(path, Mock())
 
@@ -192,7 +192,7 @@ async def test_handle_add_unsupported_extension(ingest_service):
 
     with (
         patch("pathlib.Path.exists", return_value=True),
-        patch("kobosync.services.ingest.SUPPORTED_EXTENSIONS", {".epub", ".kepub"}),
+        patch("kobold.services.ingest.SUPPORTED_EXTENSIONS", {".epub", ".kepub"}),
     ):
         await ingest_service._handle_add(path, Mock())
 
@@ -208,7 +208,7 @@ async def test_handle_add_hashing_failure(ingest_service):
         patch("pathlib.Path.exists", return_value=True),
         patch("pathlib.Path.stat", return_value=Mock(st_size=1024)),
         patch(
-            "kobosync.services.ingest.get_file_hash",
+            "kobold.services.ingest.get_file_hash",
             side_effect=Exception("Disk error"),
         ),
         pytest.raises(Exception, match="Disk error"),
@@ -231,10 +231,10 @@ async def test_handle_add_idempotency(ingest_service, mock_session):
     mock_session_instance.exec.return_value.first.return_value = mock_book
 
     with (
-        patch("kobosync.services.ingest.Session", mock_session),
+        patch("kobold.services.ingest.Session", mock_session),
         patch("pathlib.Path.exists", return_value=True),
         patch("pathlib.Path.stat", return_value=Mock(st_size=1024)),
-        patch("kobosync.services.ingest.get_file_hash", return_value="hash123"),
+        patch("kobold.services.ingest.get_file_hash", return_value="hash123"),
     ):
         await ingest_service._handle_add(path, Mock())
 

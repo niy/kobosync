@@ -1,7 +1,7 @@
 services:
-  kobosync:
+  kobold:
     build: .
-    container_name: kobosync
+    container_name: kobold
     restart: unless-stopped
     ports:
       - "8000:8000"
@@ -10,8 +10,8 @@ services:
       # Watch directory (mount your books folder here)
       - ./books:/books
     environment:
-      - KS_WATCH_DIRS=/books
-      - KS_LOG_LEVEL=INFO
-      - KS_USER_TOKEN=<INSERT_GENERATED_TOKEN_HERE>
+      - KB_WATCH_DIRS=/books
+      - KB_LOG_LEVEL=INFO
+      - KB_USER_TOKEN=<INSERT_GENERATED_TOKEN_HERE>
     env_file:
       - .env

@@ -9,11 +9,11 @@ from pathlib import Path
 import httpx
 import pytest
 
-BASE_URL = os.getenv("KS_TEST_URL", "http://localhost:8000")
+BASE_URL = os.getenv("KB_TEST_URL", "http://localhost:8000")
 TEST_TEMP_DIR = Path(".tmp/smoke_tests")
-BOOKS_DIR = Path(os.getenv("KS_TEST_BOOKS_DIR", str(TEST_TEMP_DIR / "books")))
-DATA_DIR = Path(os.getenv("KS_TEST_DATA_DIR", str(TEST_TEMP_DIR / "data")))
-TOKEN = os.getenv("KS_USER_TOKEN", "dummy_token")
+BOOKB_DIR = Path(os.getenv("KB_TEST_BOOKB_DIR", str(TEST_TEMP_DIR / "books")))
+DATA_DIR = Path(os.getenv("KB_TEST_DATA_DIR", str(TEST_TEMP_DIR / "data")))
+TOKEN = os.getenv("KB_USER_TOKEN", "dummy_token")
 
 
 @pytest.fixture
@@ -40,10 +40,10 @@ def test_e2e_sync_flow(client: httpx.Client) -> None:
     2. Poll the sync endpoint until the book appears.
     3. Download the book and verify it.
     """
-    assert BOOKS_DIR, "KS_TEST_BOOKS_DIR not set, cannot run E2E file test"
+    assert BOOKB_DIR, "KB_TEST_BOOKB_DIR not set, cannot run E2E file test"
 
-    books_path = Path(BOOKS_DIR)
-    assert books_path.exists(), f"Books directory {BOOKS_DIR} does not exist"
+    books_path = Path(BOOKB_DIR)
+    assert books_path.exists(), f"Books directory {BOOKB_DIR} does not exist"
 
     # 1. Copy real EPUB to the shared volume
     source_dir = Path("tests/data")

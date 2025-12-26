@@ -9,10 +9,10 @@ import pytest
 from sqlalchemy.engine import Engine
 from sqlmodel import Session, SQLModel, create_engine
 
-from kobosync.config import Settings, get_settings
-from kobosync.database import get_session_dependency
-from kobosync.job_queue import JobQueue
-from kobosync.main import app
+from kobold.config import Settings, get_settings
+from kobold.database import get_session_dependency
+from kobold.job_queue import JobQueue
+from kobold.main import app
 
 pytest_plugins = [
     "tests.fixtures.mocks",
@@ -74,8 +74,8 @@ def integration_ctx(
 
     # Patch the global engine in database and main modules
     with (
-        patch("kobosync.database.engine", test_engine),
-        patch("kobosync.main.engine", test_engine),
+        patch("kobold.database.engine", test_engine),
+        patch("kobold.main.engine", test_engine),
     ):
         start_worker(test_settings, test_engine, test_queue)
 

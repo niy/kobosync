@@ -323,7 +323,7 @@ wheels = [
 ]
 
 [[package]]
-name = "kobosync"
+name = "kobold"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [

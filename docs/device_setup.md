@@ -1,6 +1,6 @@
 # Device Setup
 
-To synchronize a Kobo eReader with KoboSync, the device's configuration file must be modified to point to the KoboSync server.
+To synchronize a Kobo eReader with Kobold, the device's configuration file must be modified to point to the Kobold server.
 
 ## Configuration Steps
 
@@ -24,7 +24,7 @@ To synchronize a Kobo eReader with KoboSync, the device's configuration file mus
     *Example with reverse proxy*:
     ```ini
     [OneStoreServices]
-    api_endpoint=https://kobosync.example.com/api/kobo/my-secret-token
+    api_endpoint=https://kobold.example.com/api/kobo/my-secret-token
 
 5.  **Save and Eject**: Save the file and safely eject the device.
 6.  **Sync**: Tap the **Sync** icon on the Kobo device. New books should now appear.

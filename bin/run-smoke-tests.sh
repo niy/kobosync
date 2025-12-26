@@ -23,8 +23,8 @@ while [[ "$#" -gt 0 ]]; do
     shift
 done
 
-IMAGE_NAME="kobosync:${IMAGE_TAG}"
-CONTAINER_NAME="kobosync_test"
+IMAGE_NAME="kobold:${IMAGE_TAG}"
+CONTAINER_NAME="kobold_test"
 
 echo -e "${GREEN}Starting Local Smoke Tests...${NC}"
 echo -e "${GREEN}Target Image: ${IMAGE_NAME}${NC}"
@@ -50,9 +50,9 @@ echo "Starting container..."
 docker run -d --name ${CONTAINER_NAME} \
   --user "$(id -u):$(id -g)" \
   -p 8000:8000 \
-  -e KS_USER_TOKEN=${TOKEN} \
-  -e KS_WORKER_POLL_INTERVAL=0.1 \
-  -e KS_FETCH_EXTERNAL_METADATA=${WITH_METADATA:-false} \
+  -e KB_USER_TOKEN=${TOKEN} \
+  -e KB_WORKER_POLL_INTERVAL=0.1 \
+  -e KB_FETCH_EXTERNAL_METADATA=${WITH_METADATA:-false} \
   -v "$(pwd)/${BOOKS_DIR}:/books" \
   -v "$(pwd)/${DATA_DIR}:/data" \
   ${IMAGE_NAME}
@@ -83,11 +83,11 @@ echo "Installing test dependencies..."
 uv sync --frozen --all-extras --dev
 
 echo "Running pytest..."
-export KS_USER_TOKEN=${TOKEN}
-export KS_TEST_URL="http://localhost:8000"
-export KS_TEST_BOOKS_DIR="${BOOKS_DIR}"
+export KB_USER_TOKEN=${TOKEN}
+export KB_TEST_URL="http://localhost:8000"
+export KB_TEST_BOOKS_DIR="${BOOKS_DIR}"
 
-export KS_TEST_FETCH_METADATA=${WITH_METADATA:-false}
+export KB_TEST_FETCH_METADATA=${WITH_METADATA:-false}
 
 if uv run pytest tests/smoke/test_docker.py tests/smoke/test_metadata_verification.py -v; then
     echo -e "${GREEN}Smoke tests passed successfully!${NC}"

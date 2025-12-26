@@ -2,18 +2,18 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from kobosync.job_queue import JobQueue
-from kobosync.models import Job, JobStatus, JobType
-from kobosync.worker import stop_event, worker
+from kobold.job_queue import JobQueue
+from kobold.models import Job, JobStatus, JobType
+from kobold.worker import stop_event, worker
 
 
 @pytest.fixture
 def mock_dependencies():
     with (
-        patch("kobosync.worker.IngestService", autospec=True) as mock_ingest_cls,
-        patch("kobosync.worker.MetadataJobService", autospec=True) as mock_meta_cls,
-        patch("kobosync.worker.ConversionJobService", autospec=True) as mock_conv_cls,
-        patch("kobosync.worker.MetadataManager", autospec=True),
+        patch("kobold.worker.IngestService", autospec=True) as mock_ingest_cls,
+        patch("kobold.worker.MetadataJobService", autospec=True) as mock_meta_cls,
+        patch("kobold.worker.ConversionJobService", autospec=True) as mock_conv_cls,
+        patch("kobold.worker.MetadataManager", autospec=True),
     ):
         mock_ingest_svc = mock_ingest_cls.return_value
         mock_meta_svc = mock_meta_cls.return_value

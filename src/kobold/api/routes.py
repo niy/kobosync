@@ -215,7 +215,7 @@ def _book_to_entitlement(book: Book, base_url: str) -> dict[str, Any]:
             "ReviewCount": book.review_count or 0,
             "MinKoboVersion": "0.0.0",
             "EntitlementId": str(book.id),
-            "ContentSource": "KoboSync",
+            "ContentSource": "Kobold",
         }
     }
 

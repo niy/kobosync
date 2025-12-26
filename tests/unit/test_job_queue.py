@@ -3,8 +3,8 @@ from datetime import UTC, datetime, timedelta
 import pytest
 from sqlmodel import Session, SQLModel, create_engine
 
-from kobosync.job_queue import JobQueue
-from kobosync.models import Job, JobStatus, JobType
+from kobold.job_queue import JobQueue
+from kobold.models import Job, JobStatus, JobType
 
 
 class TestJobQueue:

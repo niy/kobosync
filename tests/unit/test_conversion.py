@@ -4,8 +4,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from kobosync.conversion import KepubConverter
-from kobosync.kepubify import KepubifyBinary
+from kobold.conversion import KepubConverter
+from kobold.kepubify import KepubifyBinary
 
 
 @pytest.fixture

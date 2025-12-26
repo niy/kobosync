@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 from fastapi.testclient import TestClient
 from sqlmodel import Session
 
-from kobosync.main import app
+from kobold.main import app
 
 
 def test_health_check():
@@ -13,7 +13,7 @@ def test_health_check():
     assert response.json() == {"status": "ok"}
 
 
-@patch("kobosync.api.health.Session")
+@patch("kobold.api.health.Session")
 def test_readiness_check_ok(mock_session_cls):
     # Mock the session context manager
     mock_session = MagicMock(spec=Session)
@@ -29,7 +29,7 @@ def test_readiness_check_ok(mock_session_cls):
     assert response.json() == {"status": "ready", "database": True}
 
 
-@patch("kobosync.api.health.Session")
+@patch("kobold.api.health.Session")
 def test_readiness_check_db_failure(mock_session_cls):
     # Mock the session context manager to raise an exception
     mock_session_cls.return_value.__enter__.side_effect = Exception(

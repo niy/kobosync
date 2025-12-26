@@ -1,13 +1,13 @@
 # Configuration
 
-KoboSync is configured via environment variables.
+Kobold is configured via environment variables.
 
 ## Core Settings
 
 | Variable | Default | Description |
 | :--- | :--- | :--- |
 | `KS_USER_TOKEN` | *(none)* | **Required**: Secure token for API authentication. App will fail to start if missing. |
-| `KS_DATA_PATH` | `./data` | Directory for persistent application data (`kobosync.db`). |
+| `KS_DATA_PATH` | `./data` | Directory for persistent application data (`kobold.db`). |
 | `KS_WATCH_DIRS` | `/books` | Comma-separated list of directories to monitor. |
 | `KS_WORKER_POLL_INTERVAL` | `300.0` | Interval in seconds between worker polls for new jobs (metadata, conversion). |
 | `KS_LOG_LEVEL` | `INFO` | Logging verbosity (`DEBUG`, `INFO`, `WARNING`, `ERROR`). |

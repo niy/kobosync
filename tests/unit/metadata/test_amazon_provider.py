@@ -2,7 +2,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from kobosync.metadata.amazon import AmazonProvider
+from kobold.metadata.amazon import AmazonProvider
 
 
 class TestAmazonProvider:

@@ -1,7 +1,7 @@
 import base64
 import json
 
-from kobosync.utils.kobo_token import KoboSyncToken
+from kobold.utils.kobo_token import KoboSyncToken
 
 
 class TestKoboSyncToken:

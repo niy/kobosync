@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from kobosync.kepubify import KepubifyBinary
+from kobold.kepubify import KepubifyBinary
 
 
 @pytest.fixture
@@ -114,7 +114,7 @@ class TestKepubifyBinary:
         with (
             patch("shutil.which", return_value=None),
             patch(
-                "kobosync.kepubify.HttpClientManager.get_client",
+                "kobold.kepubify.HttpClientManager.get_client",
                 return_value=mock_client,
             ),
         ):
@@ -134,7 +134,7 @@ class TestKepubifyBinary:
         with (
             patch("shutil.which", return_value=None),
             patch(
-                "kobosync.kepubify.HttpClientManager.get_client",
+                "kobold.kepubify.HttpClientManager.get_client",
                 return_value=mock_client,
             ),
             pytest.raises(RuntimeError, match="Cannot download kepubify"),

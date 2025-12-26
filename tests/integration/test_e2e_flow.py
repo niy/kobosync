@@ -7,7 +7,7 @@ from fastapi.testclient import TestClient
 from sqlmodel import Session, col, select
 from tests.conftest import IntegrationContext
 
-from kobosync.models import Book, Job, JobStatus
+from kobold.models import Book, Job, JobStatus
 
 
 @pytest.fixture
@@ -45,7 +45,7 @@ async def test_full_pipeline_epub(
     test_file = ctx.watch_dir / "romeo.epub"
     test_file.write_bytes((test_data_dir / "romeo_and_juliet.epub").read_bytes())
 
-    from kobosync.scanner import ScannerService
+    from kobold.scanner import ScannerService
 
     scanner = ScannerService(settings=ctx.settings, queue=ctx.queue)
     await scanner.scan_directories()
@@ -101,7 +101,7 @@ async def test_comics_ingestion(
     with zipfile.ZipFile(cbz_path, "w") as zf:
         zf.writestr("page1.jpg", b"fake_image_content")
 
-    from kobosync.scanner import ScannerService
+    from kobold.scanner import ScannerService
 
     scanner = ScannerService(settings=ctx.settings, queue=ctx.queue)
     await scanner.scan_directories()
@@ -122,7 +122,7 @@ async def test_pdf_ingestion(integration_ctx: IntegrationContext, test_data_dir:
     test_file = ctx.watch_dir / "beauty.pdf"
     test_file.write_bytes((test_data_dir / "beauty_and_the_beast.pdf").read_bytes())
 
-    from kobosync.scanner import ScannerService
+    from kobold.scanner import ScannerService
 
     scanner = ScannerService(settings=ctx.settings, queue=ctx.queue)
     await scanner.scan_directories()

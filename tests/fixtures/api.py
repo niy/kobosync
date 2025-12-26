@@ -4,8 +4,8 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
-from kobosync.config import Settings, get_settings
-from kobosync.main import app
+from kobold.config import Settings, get_settings
+from kobold.main import app
 
 
 @pytest.fixture

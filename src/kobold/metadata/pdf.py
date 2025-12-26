@@ -134,8 +134,8 @@ class PdfMetadataExtractor:
         if keywords:
             pdf_metadata["keywords"] = ", ".join(keywords)
 
-        pdf_metadata["producer"] = "KoboSync"
-        pdf_metadata["creator"] = "KoboSync"
+        pdf_metadata["producer"] = "Kobold"
+        pdf_metadata["creator"] = "Kobold"
 
         if not pdf_metadata:
             return
@@ -185,14 +185,14 @@ class PdfMetadataExtractor:
         ET.register_namespace("xml", NS_XML)
 
         xmpmeta = ET.Element("{adobe:ns:meta/}xmpmeta")
-        xmpmeta.set("{adobe:ns:meta/}xmptk", "KoboSync via PyMuPDF")
+        xmpmeta.set("{adobe:ns:meta/}xmptk", "Kobold via PyMuPDF")
 
         rdf = ET.SubElement(xmpmeta, f"{{{NS_RDF}}}RDF")
 
         desc_main = ET.SubElement(rdf, f"{{{NS_RDF}}}Description")
         desc_main.set(f"{{{NS_RDF}}}about", "")
         desc_main.set(f"{{{NS_XMP}}}CreateDate", datetime.now(UTC).isoformat())
-        desc_main.set(f"{{{NS_XMP}}}CreatorTool", "KoboSync")
+        desc_main.set(f"{{{NS_XMP}}}CreatorTool", "Kobold")
 
         if metadata.get("title"):
             title_elem = ET.SubElement(desc_main, f"{{{NS_DC}}}title")

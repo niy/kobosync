@@ -34,5 +34,5 @@ When a device initiates a sync:
 
 ## Data Persistence
 
-*   **Database**: SQLite (`kobosync.db`) stores metadata, file paths, and job states.
+*   **Database**: SQLite (`kobold.db`) stores metadata, file paths, and job states.
 *   **Filesystem**: User files are treated as read-only (unless metadata embedding is enabled). Only converted files or temporary artifacts are written to the storage volume.

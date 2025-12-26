@@ -5,7 +5,7 @@ import httpx
 import pytest
 import time_machine
 
-from kobosync.metadata.base import RateLimitedTransport
+from kobold.metadata.base import RateLimitedTransport
 
 
 class TestRateLimitedTransport:

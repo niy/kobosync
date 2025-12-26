@@ -1,12 +1,12 @@
 import pytest
 
-from kobosync.kepubify import KEPUBIFY_DOWNLOAD_BASE, KepubifyBinary
+from kobold.kepubify import KEPUBIFY_DOWNLOAD_BASE, KepubifyBinary
 
 
 class TestKepubifyAvailability:
     @pytest.mark.asyncio
     async def test_kepubify_download_url_is_reachable(self):
-        from kobosync.http_client import HttpClientManager
+        from kobold.http_client import HttpClientManager
 
         binary = KepubifyBinary()
         binary_name = binary._get_platform_binary_name()

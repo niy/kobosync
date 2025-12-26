@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-Only the latest version of KoboSync is currently supported with security updates.
+Only the latest version of Kobold is currently supported with security updates.
 
 | Version | Supported          |
 | ------- | ------------------ |
@@ -11,6 +11,6 @@ Only the latest version of KoboSync is currently supported with security updates
 
 ## Reporting a Vulnerability
 
-If you believe you have found a security vulnerability in KoboSync, please report it via [GitHub Security Advisories](https://github.com/niy/kobosync/security/advisories/new)
+If you believe you have found a security vulnerability in Kobold, please report it via [GitHub Security Advisories](https://github.com/niy/kobold/security/advisories/new)
 
 **Please do not report security vulnerabilities through public GitHub issues.**

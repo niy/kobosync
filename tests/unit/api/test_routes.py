@@ -6,10 +6,10 @@ from uuid import UUID, uuid4
 import pytest
 from fastapi.testclient import TestClient
 
-from kobosync.api.proxy import KoboProxyService
-from kobosync.config import Settings
-from kobosync.models import Book, ReadingState
-from kobosync.utils.kobo_token import KoboSyncToken
+from kobold.api.proxy import KoboProxyService
+from kobold.config import Settings
+from kobold.models import Book, ReadingState
+from kobold.utils.kobo_token import KoboSyncToken
 
 
 @pytest.fixture
@@ -24,9 +24,9 @@ def app_client(test_settings: Settings, temp_db: str) -> TestClient:
     from fastapi import FastAPI
     from sqlmodel import Session, SQLModel, create_engine
 
-    from kobosync.api.routes import router
-    from kobosync.config import get_settings
-    from kobosync.database import get_session_dependency
+    from kobold.api.routes import router
+    from kobold.config import get_settings
+    from kobold.database import get_session_dependency
 
     db_url = str(temp_db)
     test_engine = create_engine(db_url, connect_args={"check_same_thread": False})
@@ -62,7 +62,7 @@ class TestInitialization:
         assert response.status_code == 401
 
     def test_initialization_custom_host(self, app_client: TestClient) -> None:
-        custom_host = "kobosync.internal:1234"
+        custom_host = "kobold.internal:1234"
         response = app_client.get(
             "/api/kobo/test_token/v1/initialization",
             headers={"Host": custom_host},
@@ -148,7 +148,7 @@ class TestLibrarySync:
     def test_sync_custom_host(self, app_client: TestClient, temp_db: str) -> None:
         from sqlmodel import Session, create_engine
 
-        from kobosync.models import Book
+        from kobold.models import Book
 
         engine = create_engine(temp_db, connect_args={"check_same_thread": False})
         book_id = uuid4()
@@ -185,7 +185,7 @@ class TestLibrarySync:
     def test_sync_library_invalid_timestamp(self, app_client: TestClient) -> None:
         token_str = KoboSyncToken(lastSuccessfulSyncPointId="invalid-date").to_base64()
 
-        with patch("kobosync.api.routes.logger") as mock_logger:
+        with patch("kobold.api.routes.logger") as mock_logger:
             response = app_client.get(
                 "/api/kobo/test_token/v1/library/sync",
                 headers={"X-Kobo-SyncToken": token_str},
@@ -289,7 +289,7 @@ class TestCoverImages:
 
         from sqlmodel import Session, create_engine
 
-        from kobosync.models import Book
+        from kobold.models import Book
 
         engine = create_engine(temp_db, connect_args={"check_same_thread": False})
 
@@ -323,7 +323,7 @@ class TestCoverImages:
     ) -> None:
         from sqlmodel import Session, create_engine
 
-        from kobosync.models import Book
+        from kobold.models import Book
 
         engine = create_engine(temp_db, connect_args={"check_same_thread": False})
         book_id = str(uuid4())
@@ -351,7 +351,7 @@ class TestCoverImages:
     ) -> None:
         from sqlmodel import Session, create_engine
 
-        from kobosync.models import Book
+        from kobold.models import Book
 
         engine = create_engine(temp_db, connect_args={"check_same_thread": False})
         book_id = str(uuid4())
@@ -383,7 +383,7 @@ class TestCoverImages:
         mock_client.get = AsyncMock(return_value=mock_response)
 
         with patch(
-            "kobosync.api.routes.HttpClientManager.get_client",
+            "kobold.api.routes.HttpClientManager.get_client",
             return_value=mock_client,
         ):
             response = app_client.get(f"/images/{book_id}/200/300/False/img.jpg")
@@ -420,7 +420,7 @@ class TestCoverImages:
         mock_client.get.side_effect = Exception("Network error")
 
         with patch(
-            "kobosync.http_client.HttpClientManager.get_client",
+            "kobold.http_client.HttpClientManager.get_client",
             return_value=mock_client,
         ):
             response = app_client.get(f"/images/{book_id}/100/100/False/img.jpg")

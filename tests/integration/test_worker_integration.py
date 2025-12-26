@@ -6,9 +6,9 @@ import pytest
 from sqlmodel import Session, col, select
 from tests.conftest import IntegrationContext
 
-from kobosync.models import Book, Job
-from kobosync.watcher import watch_directories
-from kobosync.worker import worker
+from kobold.models import Book, Job
+from kobold.watcher import watch_directories
+from kobold.worker import worker
 
 
 @pytest.mark.asyncio

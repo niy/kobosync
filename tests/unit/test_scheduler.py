@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock, Mock, patch
 import pytest
 import time_machine
 
-from kobosync.scheduler import schedule_periodic_scans
+from kobold.scheduler import schedule_periodic_scans
 
 
 @pytest.mark.asyncio
@@ -27,7 +27,7 @@ async def test_scheduler_runs_periodic_scans():
 
             with (
                 contextlib.suppress(asyncio.CancelledError),
-                patch("kobosync.scheduler.RECONCILE_INTERVAL_MINUTES", 60),
+                patch("kobold.scheduler.RECONCILE_INTERVAL_MINUTES", 60),
             ):
                 await schedule_periodic_scans(mock_scanner)
 
@@ -46,7 +46,7 @@ async def test_scheduler_disabled():
     mock_scanner = Mock()
     mock_scanner.scan_directories = AsyncMock()
 
-    with patch("kobosync.scheduler.RECONCILE_INTERVAL_MINUTES", 0):
+    with patch("kobold.scheduler.RECONCILE_INTERVAL_MINUTES", 0):
         await schedule_periodic_scans(mock_scanner)
 
     mock_scanner.scan_directories.assert_not_called()

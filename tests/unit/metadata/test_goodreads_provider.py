@@ -2,7 +2,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from kobosync.metadata.goodreads import GoodreadsProvider
+from kobold.metadata.goodreads import GoodreadsProvider
 
 
 class TestGoodreadsProvider:

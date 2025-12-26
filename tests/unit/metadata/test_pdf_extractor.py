@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from kobosync.metadata.pdf import PdfMetadataExtractor
+from kobold.metadata.pdf import PdfMetadataExtractor
 
 
 class TestPdfMetadataExtractor:
@@ -54,7 +54,7 @@ class TestPdfMetadataExtractor:
         pdf_path = tmp_path / "test.pdf"
         pdf_path.write_bytes(b"%PDF-1.4")
 
-        with patch("kobosync.metadata.pdf.pymupdf.open", return_value=mock_doc):
+        with patch("kobold.metadata.pdf.pymupdf.open", return_value=mock_doc):
             result = extractor.extract(str(pdf_path))
 
         assert result["title"] == "Test PDF Title"
@@ -110,7 +110,7 @@ class TestPdfMetadataExtractor:
         pdf_path = tmp_path / "test.pdf"
         pdf_path.write_bytes(b"%PDF-1.4")
 
-        with patch("kobosync.metadata.pdf.pymupdf.open", return_value=mock_doc):
+        with patch("kobold.metadata.pdf.pymupdf.open", return_value=mock_doc):
             result = extractor.extract(str(pdf_path))
 
         assert result["title"] == "XMP Title"

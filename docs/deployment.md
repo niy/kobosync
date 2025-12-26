@@ -1,6 +1,6 @@
 # Deployment
 
-The official image is available at `ghcr.io/niy/kobosync`.
+The official image is available at `ghcr.io/niy/kobold`.
 
 ## Deployment Guide
 
@@ -26,9 +26,9 @@ Create a `docker-compose.yml` file.
 
 ```yaml
 services:
-    kobosync:
-      image: ghcr.io/niy/kobosync:latest
-      container_name: kobosync
+    kobold:
+      image: ghcr.io/niy/kobold:latest
+      container_name: kobold
       restart: unless-stopped
       ports:
         - "8000:8000"

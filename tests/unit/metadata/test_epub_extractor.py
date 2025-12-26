@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from kobosync.metadata.epub import EpubMetadataExtractor
+from kobold.metadata.epub import EpubMetadataExtractor
 
 
 class TestEpubMetadataExtractor:

@@ -115,13 +115,13 @@ class AmazonProvider(RateLimitedProvider):
                 if self._cookie_configured:
                     log.error(
                         "Amazon authentication failed - cookie may be invalid or expired. "
-                        "Please update KS_AMAZON_COOKIE with a fresh session cookie.",
+                        "Please update KB_AMAZON_COOKIE with a fresh session cookie.",
                         domain=self._settings.AMAZON_DOMAIN,
                     )
                 else:
                     log.warning(
                         "Amazon returned a login/captcha page. Consider providing "
-                        "KS_AMAZON_COOKIE to authenticate requests.",
+                        "KB_AMAZON_COOKIE to authenticate requests.",
                     )
                 return None
 
@@ -159,13 +159,13 @@ class AmazonProvider(RateLimitedProvider):
                 if self._cookie_configured:
                     log.error(
                         "Amazon authentication failed on detail page - cookie may be "
-                        "invalid or expired. Please update KS_AMAZON_COOKIE.",
+                        "invalid or expired. Please update KB_AMAZON_COOKIE.",
                         domain=self._settings.AMAZON_DOMAIN,
                     )
                 else:
                     log.warning(
                         "Amazon detail page requires authentication. Consider "
-                        "providing KS_AMAZON_COOKIE.",
+                        "providing KB_AMAZON_COOKIE.",
                     )
                 return None
 

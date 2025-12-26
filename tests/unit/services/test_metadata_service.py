@@ -3,8 +3,8 @@ from unittest.mock import AsyncMock, MagicMock, Mock, patch
 import pytest
 from sqlmodel import Session
 
-from kobosync.models import Book
-from kobosync.services.metadata_service import MetadataJobService
+from kobold.models import Book
+from kobold.services.metadata_service import MetadataJobService
 
 
 @pytest.fixture
@@ -59,7 +59,7 @@ async def test_process_job_updates_metadata(
         }
     )
 
-    with patch("kobosync.services.metadata_service.Session", mock_session):
+    with patch("kobold.services.metadata_service.Session", mock_session):
         await metadata_service.process_job({"book_id": book_id})
 
         assert mock_book.title == "New Title"
@@ -84,7 +84,7 @@ async def test_process_job_ignores_non_existent_book(metadata_service, mock_sess
     mock_session.return_value.__enter__.return_value = mock_session_instance
     mock_session_instance.get.return_value = None
 
-    with patch("kobosync.services.metadata_service.Session", mock_session):
+    with patch("kobold.services.metadata_service.Session", mock_session):
         await metadata_service.process_job({"book_id": book_id})
 
     metadata_service.metadata_manager.get_metadata.assert_not_called()
@@ -107,7 +107,7 @@ async def test_process_job_handles_no_metadata_found(
 
     mock_manager.get_metadata = AsyncMock(return_value=None)
 
-    with patch("kobosync.services.metadata_service.Session", mock_session):
+    with patch("kobold.services.metadata_service.Session", mock_session):
         await metadata_service.process_job({"book_id": book_id})
 
     mock_session_instance.add.assert_not_called()
@@ -131,7 +131,7 @@ async def test_process_job_handles_no_updated_fields(
     # Metadata matches existing book
     mock_manager.get_metadata = AsyncMock(return_value={"title": "Existing Title"})
 
-    with patch("kobosync.services.metadata_service.Session", mock_session):
+    with patch("kobold.services.metadata_service.Session", mock_session):
         await metadata_service.process_job({"book_id": book_id})
 
     # Should not attempt to update book since values are identical
@@ -156,7 +156,7 @@ async def test_process_job_ignores_unknown_fields(
 
     mock_manager.get_metadata = AsyncMock(return_value={"unknown_field": "some value"})
 
-    with patch("kobosync.services.metadata_service.Session", mock_session):
+    with patch("kobold.services.metadata_service.Session", mock_session):
         await metadata_service.process_job({"book_id": book_id})
 
     mock_session_instance.add.assert_not_called()
@@ -191,9 +191,9 @@ async def test_process_job_handles_cover_download_failure(
     mock_client.get.return_value.status_code = 404
 
     with (
-        patch("kobosync.services.metadata_service.Session", mock_session),
+        patch("kobold.services.metadata_service.Session", mock_session),
         patch(
-            "kobosync.services.metadata_service.HttpClientManager.get_client",
+            "kobold.services.metadata_service.HttpClientManager.get_client",
             AsyncMock(return_value=mock_client),
         ),
     ):
@@ -235,9 +235,9 @@ async def test_process_job_handles_cover_download_exception(
     mock_client.get.side_effect = Exception("Network Error")
 
     with (
-        patch("kobosync.services.metadata_service.Session", mock_session),
+        patch("kobold.services.metadata_service.Session", mock_session),
         patch(
-            "kobosync.services.metadata_service.HttpClientManager.get_client",
+            "kobold.services.metadata_service.HttpClientManager.get_client",
             AsyncMock(return_value=mock_client),
         ),
     ):
@@ -276,9 +276,9 @@ async def test_process_job_embeds_metadata(
     mock_client.get.return_value.content = b"cover_data"
 
     with (
-        patch("kobosync.services.metadata_service.Session", mock_session),
+        patch("kobold.services.metadata_service.Session", mock_session),
         patch(
-            "kobosync.services.metadata_service.HttpClientManager.get_client",
+            "kobold.services.metadata_service.HttpClientManager.get_client",
             AsyncMock(return_value=mock_client),
         ),
     ):

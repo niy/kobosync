@@ -1,8 +1,8 @@
-site_name: KoboSync
+site_name: Kobold
 site_description: Headless Kobo library synchronization daemon.
-site_url: https://niy.github.io/kobosync
-repo_name: KoboSync
-repo_url: https://github.com/niy/kobosync
+site_url: https://niy.github.io/kobold
+repo_name: Kobold
+repo_url: https://github.com/niy/kobold
 edit_uri: edit/main/docs/
 
 theme:

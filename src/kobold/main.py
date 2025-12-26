@@ -29,7 +29,7 @@ logger = get_logger(__name__)
 @asynccontextmanager
 async def lifespan(_app: FastAPI) -> AsyncGenerator[None]:
     logger.info(
-        "KoboSync starting",
+        "Kobold starting",
         version="0.1.0",
         watch_dirs=settings.WATCH_DIRS,
         port=PORT,
@@ -64,7 +64,7 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator[None]:
     logger.info("Scheduler started")
 
     logger.info(
-        "KoboSync ready",
+        "Kobold ready",
         host=HOST,
         port=PORT,
         convert_epub=settings.CONVERT_EPUB,
@@ -72,7 +72,7 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator[None]:
 
     yield
 
-    logger.info("KoboSync shutting down...")
+    logger.info("Kobold shutting down...")
 
     scan_task.cancel()
     scheduler_task.cancel()
@@ -96,11 +96,11 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator[None]:
     await HttpClientManager.close()
     logger.debug("HTTP client closed")
 
-    logger.info("KoboSync shutdown complete")
+    logger.info("Kobold shutdown complete")
 
 
 app = FastAPI(
-    title="KoboSync",
+    title="Kobold",
     description="Headless Kobo library sync daemon",
     version="0.1.0",
     lifespan=lifespan,
@@ -114,7 +114,7 @@ if __name__ == "__main__":
     import uvicorn
 
     uvicorn.run(
-        "kobosync.main:app",
+        "kobold.main:app",
         host=HOST,
         port=PORT,
         reload=False,  # Disable for production

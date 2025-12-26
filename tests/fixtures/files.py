@@ -59,6 +59,6 @@ def synthetic_epub(tmp_path: Path) -> Path:
 @pytest.fixture
 def sample_text_file(tmp_path: Path) -> Path:
     file_path = tmp_path / "sample.txt"
-    content = b"Hello, KoboSync! " * 1000
+    content = b"Hello, Kobold! " * 1000
     file_path.write_bytes(content)
     return file_path

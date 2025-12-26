@@ -9,11 +9,11 @@ import httpx
 import pymupdf
 import pytest
 
-BASE_URL = os.getenv("KS_TEST_URL", "http://localhost:8000")
+BASE_URL = os.getenv("KB_TEST_URL", "http://localhost:8000")
 TEST_TEMP_DIR = Path(".tmp/smoke_tests")
-BOOKS_DIR = Path(os.getenv("KS_TEST_BOOKS_DIR", str(TEST_TEMP_DIR / "books")))
-TOKEN = os.getenv("KS_USER_TOKEN", "dummy_token")
-FETCH_METADATA = os.getenv("KS_TEST_FETCH_METADATA", "false").lower() == "true"
+BOOKB_DIR = Path(os.getenv("KB_TEST_BOOKB_DIR", str(TEST_TEMP_DIR / "books")))
+TOKEN = os.getenv("KB_USER_TOKEN", "dummy_token")
+FETCH_METADATA = os.getenv("KB_TEST_FETCH_METADATA", "false").lower() == "true"
 
 
 @pytest.fixture
@@ -31,8 +31,8 @@ def test_metadata_extraction_end_to_end(client: httpx.Client) -> None:
     3. Verify API returns enriched metadata (Goodreads/Amazon data).
     4. Download file and verify internal metadata/cover match.
     """
-    assert BOOKS_DIR, "KS_TEST_BOOKS_DIR not set"
-    books_path = Path(BOOKS_DIR)
+    assert BOOKB_DIR, "KB_TEST_BOOKB_DIR not set"
+    books_path = Path(BOOKB_DIR)
 
     source_epub = Path("tests/data/romeo_and_juliet.epub")
     assert source_epub.exists(), "Source test file not found"

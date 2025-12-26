@@ -31,7 +31,7 @@ jobs:
         with:
           context: .
           load: true
-          tags: kobosync:test
+          tags: kobold:test
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -52,4 +52,4 @@ jobs:
 
       - name: Container Logs (on failure)
         if: failure()
-        run: docker logs kobosync_test
+        run: docker logs kobold_test

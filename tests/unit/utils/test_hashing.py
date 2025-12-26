@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from kobosync.utils.hashing import get_file_hash
+from kobold.utils.hashing import get_file_hash
 
 
 class TestFileHash:

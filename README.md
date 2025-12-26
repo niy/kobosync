@@ -1,12 +1,12 @@
-# KoboSync
+# Kobold
 
-[![License](https://img.shields.io/github/license/niy/kobosync)](LICENSE)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/niy/kobosync/ci.yml)](https://github.com/niy/kobosync/actions/workflows/ci.yml)
+[![License](https://img.shields.io/github/license/niy/kobold)](LICENSE)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/niy/kobold/ci.yml)](https://github.com/niy/kobold/actions/workflows/ci.yml)
 [![Python Version](https://img.shields.io/badge/python-3.14-blue)](pyproject.toml)
 
-KoboSync is a lightweight service that synchronizes a local eBook collection with Kobo eReaders. It automates file ingestion, enriches content with metadata, and serves books via the Kobo Sync API.
+Kobold is a lightweight service that synchronizes a local eBook collection with Kobo eReaders. It automates file ingestion, enriches content with metadata, and serves books via the Kobo Sync API.
 
-**[Documentation](https://niy.github.io/kobosync/)**
+**[Documentation](https://niy.github.io/kobold/)**
 
 ## Features
 
@@ -31,9 +31,9 @@ The recommended way to deploy is via Docker Compose.
 
     ```yaml
     services:
-      kobosync:
-        image: ghcr.io/niy/kobosync:latest
-        container_name: kobosync
+      kobold:
+        image: ghcr.io/niy/kobold:latest
+        container_name: kobold
         restart: unless-stopped
         ports:
           - "8000:8000"
@@ -52,7 +52,7 @@ The recommended way to deploy is via Docker Compose.
 
 ## Configuration
 
-KoboSync is configured using environment variables.
+Kobold is configured using environment variables.
 
 The only required environment variable is `KS_USER_TOKEN`, which is used for authentication. You can use `openssl rand -hex 16` or any other method you prefer (e.g. a password manager) to generate a cryptographically secure random string.
 
@@ -60,7 +60,7 @@ For a list of available options, refer to the [Configuration Documentation](docs
 
 ## Device Setup
 
-To synchronize a Kobo device, edit the `Kobo eReader.conf` file on the device to point to the KoboSync server.
+To synchronize a Kobo device, edit the `Kobo eReader.conf` file on the device to point to the Kobold server.
 
 1.  Connect the Kobo device to a computer via USB.
 2.  Locate `.kobo/Kobo/Kobo eReader.conf`.

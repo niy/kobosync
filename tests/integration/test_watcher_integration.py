@@ -14,10 +14,10 @@ import pytest
 from sqlalchemy import create_engine
 from sqlmodel import Session, SQLModel, select
 
-from kobosync.config import Settings
-from kobosync.job_queue import JobQueue
-from kobosync.models import Job, JobType
-from kobosync.watcher import watch_directories
+from kobold.config import Settings
+from kobold.job_queue import JobQueue
+from kobold.models import Job, JobType
+from kobold.watcher import watch_directories
 
 
 @pytest.fixture

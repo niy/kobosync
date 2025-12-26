@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     """
     Application configuration.
 
-    All variables are prefixed with KS_ (e.g. KS_PORT, KS_WATCH_DIRS).
+    All variables are prefixed with KB_ (e.g. KB_PORT, KB_WATCH_DIRS).
     """
 
     # Watcher Configuration
@@ -42,7 +42,7 @@ class Settings(BaseSettings):
     LOG_LEVEL: str = "INFO"
 
     model_config = SettingsConfigDict(
-        env_prefix="KS_",
+        env_prefix="KB_",
         env_file=".env",
         env_file_encoding="utf-8",
         extra="ignore",
@@ -54,7 +54,7 @@ class Settings(BaseSettings):
 
     @property
     def db_url(self) -> str:
-        return f"sqlite:///{self.DATA_PATH}/kobosync.db"
+        return f"sqlite:///{self.DATA_PATH}/kobold.db"
 
     @property
     def tools_path(self) -> Path:
@@ -72,6 +72,6 @@ def get_settings() -> Settings:
         missing = [err["loc"][0] for err in e.errors() if err["type"] == "missing"]
         if missing:
             raise SystemExit(
-                f"Missing required environment variable(s): {', '.join(f'KS_{m}' for m in missing)}"
+                f"Missing required environment variable(s): {', '.join(f'KB_{m}' for m in missing)}"
             ) from None
         raise

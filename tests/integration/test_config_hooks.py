@@ -9,9 +9,9 @@ import pytest
 from sqlmodel import Session, SQLModel, create_engine, select
 from tests.conftest import IntegrationContext
 
-from kobosync.config import Settings
-from kobosync.models import Book
-from kobosync.watcher import watch_directories
+from kobold.config import Settings
+from kobold.models import Book
+from kobold.watcher import watch_directories
 
 
 @pytest.fixture
@@ -20,7 +20,7 @@ async def hooks_ctx(
     mock_amazon_provider: AsyncMock,
     mock_kepub_converter: AsyncMock,
 ):
-    from kobosync.job_queue import JobQueue
+    from kobold.job_queue import JobQueue
 
     watch_dir = tmp_path / "books"
     watch_dir.mkdir()
@@ -52,7 +52,7 @@ async def hooks_ctx(
     )
 
     with (
-        patch("kobosync.http_client.HttpClientManager.get_client") as mock_get_client,
+        patch("kobold.http_client.HttpClientManager.get_client") as mock_get_client,
     ):
         mock_client = AsyncMock()
         mock_client.get = AsyncMock()
@@ -102,7 +102,7 @@ async def test_embed_metadata_epub(
         completed = False
         for _ in range(50):
             with Session(ctx.engine) as session:
-                from kobosync.models import Job, JobStatus
+                from kobold.models import Job, JobStatus
 
                 job = session.exec(select(Job).where(Job.type == "METADATA")).first()
                 if job and job.status == JobStatus.COMPLETED:
@@ -170,7 +170,7 @@ async def test_embed_metadata_pdf(
         completed = False
         for _ in range(50):
             with Session(ctx.engine) as session:
-                from kobosync.models import Job, JobStatus
+                from kobold.models import Job, JobStatus
 
                 job = session.exec(select(Job).where(Job.type == "METADATA")).first()
                 if job and job.status == JobStatus.COMPLETED:

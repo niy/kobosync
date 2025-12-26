@@ -3,8 +3,8 @@ from uuid import UUID
 from fastapi.testclient import TestClient
 from sqlmodel import Session
 
-from kobosync.main import app
-from kobosync.models import Book
+from kobold.main import app
+from kobold.models import Book
 
 
 def test_auth_check(integration_ctx):

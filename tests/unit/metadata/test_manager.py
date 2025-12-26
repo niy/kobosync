@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from kobosync.metadata.manager import MetadataManager
+from kobold.metadata.manager import MetadataManager
 
 
 class TestMetadataManager:
