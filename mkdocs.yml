@@ -7,6 +7,8 @@ edit_uri: edit/main/docs/
 
 theme:
   name: material
+  logo: assets/kobold_logo.svg
+  favicon: assets/kobold_logo.svg
   features:
     - navigation.tabs
     - navigation.sections
@@ -16,20 +18,18 @@ theme:
     - search.highlight
     - content.code.copy
   palette:
-    - media: "(prefers-color-scheme: light)"
-      scheme: default
-      primary: indigo
-      accent: indigo
-      toggle:
-        icon: material/weather-sunny
-        name: Switch to dark mode
-    - media: "(prefers-color-scheme: dark)"
-      scheme: slate
-      primary: indigo
-      accent: indigo
+    - scheme: slate
+      primary: custom
+      accent: custom
       toggle:
         icon: material/weather-night
         name: Switch to light mode
+    - scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to dark mode
 
 nav:
   - Home: index.md
@@ -56,3 +56,6 @@ plugins:
 
 extra_javascript:
   - javascripts/token-generator.js
+
+extra_css:
+  - stylesheets/extra.css

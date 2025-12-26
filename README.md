@@ -1,8 +1,23 @@
-# Kobold
+<div align="center">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/kobold_logo_dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="docs/assets/kobold_logo.svg">
+  <img src="docs/assets/kobold_logo.svg" alt="Kobold Logo" width="180">
+</picture>
+
+<br>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/kobold_name_dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="docs/assets/kobold_name.svg">
+  <img src="docs/assets/kobold_name.svg" alt="Kobold" width="160">
+</picture>
 
 [![License](https://img.shields.io/github/license/niy/kobold)](LICENSE)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/niy/kobold/ci.yml)](https://github.com/niy/kobold/actions/workflows/ci.yml)
 [![Python Version](https://img.shields.io/badge/python-3.14-blue)](pyproject.toml)
+</div>
+
+# Kobold
 
 Kobold is a lightweight service that synchronizes a local eBook collection with Kobo eReaders. It automates file ingestion, enriches content with metadata, and serves books via the Kobo Sync API.
 
@@ -68,7 +83,7 @@ To synchronize a Kobo device, edit the `Kobo eReader.conf` file on the device to
 
     ```ini
     [OneStoreServices]
-    api_endpoint=http://<SERVER_IP>:8000/api/kobo/<KB_USER_TOKEN>
+    api_endpoint=http://<SERVER_IP>:<PORT>/api/kobo/<KB_USER_TOKEN>
     ```
 
 For detailed instructions, refer to the [Device Setup Guide](docs/device_setup.md).

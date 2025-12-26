@@ -1,3 +1,14 @@
+<div align="center" class="kobold-logo-container">
+  <img src="assets/kobold_logo.svg" alt="Kobold Logo" class="kobold-logo light-only" width="200">
+  <img src="assets/kobold_logo_dark.svg" alt="Kobold Logo" class="kobold-logo dark-only" width="200">
+
+  <br>
+  <img src="assets/kobold_name.svg" alt="Kobold" class="kobold-name light-only" width="180">
+  <img src="assets/kobold_name_dark.svg" alt="Kobold" class="kobold-name dark-only" width="180">
+</div>
+
+---
+
 # Kobold
 
 **Kobold** is a lightweight service that synchronizes a local eBook collection with Kobo eReaders. It automates file ingestion, enriches content with metadata, and serves books via the Kobo Sync API.
