@@ -5,6 +5,8 @@ from typing import Final
 
 from fastapi import FastAPI
 
+from kobold import __version__
+
 from .api.health import router as health_router
 from .api.routes import router as api_router
 from .config import get_settings
@@ -31,7 +33,7 @@ logger = get_logger(__name__)
 async def lifespan(_app: FastAPI) -> AsyncGenerator[None]:
     logger.info(
         "Kobold starting",
-        version="0.1.0",
+        version=__version__,
         watch_dirs=settings.WATCH_DIRS,
         port=PORT,
     )
@@ -103,7 +105,7 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator[None]:
 app = FastAPI(
     title="Kobold",
     description="Headless Kobo library sync daemon",
-    version="0.1.0",
+    version=__version__,
     lifespan=lifespan,
 )
 
