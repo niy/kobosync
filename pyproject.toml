@@ -1,6 +1,6 @@
 [project]
 name = "kobold"
-version = "0.1.0"
+version = "0.1.1"
 description = "Headless Kobo library synchronization daemon"
 readme = "README.md"
 requires-python = ">=3.14"
